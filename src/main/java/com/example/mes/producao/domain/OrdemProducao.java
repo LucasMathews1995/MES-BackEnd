@@ -19,6 +19,8 @@ public class OrdemProducao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long ordemVendaId;
+
     @Column(length = 100,  nullable = false , unique = true)
     private String numeroOP;
 
@@ -34,12 +36,6 @@ public class OrdemProducao {
 
     @OneToMany(mappedBy = "ordemProducao")
     private Set<Lote> lotes = new HashSet<>();
-
-
-
-
-
-
 
 
 

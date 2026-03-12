@@ -1,18 +1,17 @@
 package com.example.mes.producao.domain;
 
+import com.example.mes.producao.api.exception.QuantidadeNotEnoughException;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 
-@Entity
-@Table(name= "tb_lote")
-@Data
+
+@Entity(name= "tb_lote")
+@Getter
+@Setter
 public class Lote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,14 +24,40 @@ public class Lote {
     @JoinColumn(name = "ordem_producao_id")
     private OrdemProducao ordemProducao;
 
+
+
     @Column(precision  =19,  nullable = false )
-    private Integer quantidadeEstoque;
+    private Integer quantidadeDisponivel;
+
+
 
 
     private LocalDateTime dataCriacao;
     private String descricao;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "lote")
-    private List<Programacao> programacao =  new ArrayList<>();
+
+
+   @OneToOne(cascade = CascadeType.ALL)
+    private Programacao programacao;
+
+    public Lote( Integer quantidadeDisponivel, LocalDateTime dataCriacao, String descricao) {
+        this.quantidadeDisponivel = quantidadeDisponivel;
+
+        this.dataCriacao = dataCriacao;
+        this.descricao = descricao;
+    }
+    public Lote() {}
+
+
+
+    public void consumirQuantidade(Integer quantidade) {
+        if(this.quantidadeDisponivel < quantidade) {
+            throw new QuantidadeNotEnoughException("Quantidade maior que a disponível");
+        }
+        this.quantidadeDisponivel -= quantidade;
+    }
+
+
+
 
 }
