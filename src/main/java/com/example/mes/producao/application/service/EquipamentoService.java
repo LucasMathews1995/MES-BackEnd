@@ -52,6 +52,12 @@ public class EquipamentoService {
         return equipamentoRepository.findById(id).orElseThrow(()-> new  NotFoundEquipamentoException("Nenhum equipamento na lista."));
 
     }
+    @Transactional
+    public void atualizarProgramacaoEquipamento(Long id ){
+        Equipamento eq = getById(id);
+
+        equipamentoRepository.save(eq);
+    }
 
 
 }

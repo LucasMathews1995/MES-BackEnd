@@ -6,8 +6,10 @@ import lombok.*;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 
+import java.util.List;
 import java.util.Set;
 
 
@@ -17,8 +19,8 @@ import java.util.Set;
 @Entity(name = "tb_equipamento")
 @Getter
 @Setter
-@ToString(exclude = "programacao")
-@EqualsAndHashCode(exclude = "programacao")
+@ToString()
+@EqualsAndHashCode()
 public class Equipamento {
 
     @Id
@@ -32,8 +34,8 @@ public class Equipamento {
     private String sigla;
 
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Programacao programacao ;
+    @OneToMany(mappedBy = "equipamento", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Programacao> programacao = new HashSet<>();
 
     @Column(nullable = false,  name= "ativo")
     private boolean isAtivo;
@@ -57,6 +59,15 @@ public class Equipamento {
 
     }
 
+    public void adicionarProgramacao(Programacao programacao){
+        this.programacao.add(programacao);
+        programacao.setEquipamento(this);
+
+    }
+    public void removerProgramacao(Programacao programacao){
+        this.programacao.remove(programacao);
+        programacao.setEquipamento(null);
+    }
 
 
 

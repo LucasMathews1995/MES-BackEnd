@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tb_programacao_equipamento")
+@Table(name = "tb_programacao")
 @Getter
 @Setter
 public class Programacao {
@@ -19,7 +19,8 @@ public class Programacao {
        @OneToOne(cascade = CascadeType.ALL)
         private Lote lote;
 
-       @OneToOne(cascade = CascadeType.ALL)
+       @ManyToOne( fetch = FetchType.LAZY)
+       @JoinColumn(name = "equipamento_id")
         private Equipamento equipamento;
 
         @Enumerated(EnumType.STRING)
@@ -42,6 +43,11 @@ public class Programacao {
    this.quantidadeConsumida = quantidadeConsumida;
 
     }
+    public Programacao(){
+
+    }
+
+
 }
 
 

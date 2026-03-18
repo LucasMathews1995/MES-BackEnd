@@ -1,10 +1,7 @@
 package com.example.mes.producao.application.mapper;
 
-import com.example.mes.producao.application.dto.EquipamentoResponseDTO;
-import com.example.mes.producao.application.dto.LoteResponseDTO;
 import com.example.mes.producao.application.dto.ProgramacaoRequestDTO;
 import com.example.mes.producao.application.dto.ProgramacaoResponseDTO;
-import com.example.mes.producao.application.service.ProgramacaoService;
 import com.example.mes.producao.domain.Programacao;
 import com.example.mes.producao.domain.StatusProgramacao;
 import org.springframework.stereotype.Component;
@@ -23,6 +20,10 @@ public class ProgramacaoMapper {
 
 
     public ProgramacaoResponseDTO toDTO(Programacao entity) {
-return new ProgramacaoResponseDTO();
+return new ProgramacaoResponseDTO(entity.getId(),entity.getLote().getLoteNome()
+        ,entity.getEquipamento().getNome(),entity.getStatus()
+        ,entity.getDataHoraProgramada(),entity.getSequenciaFila()
+        ,entity.getQuantidadeConsumida()
+        ,entity.getLote().getQuantidadeDisponivel());
     }
 }

@@ -54,9 +54,12 @@ public class LoteService {
 
     public  Lote getById (Long id){
 
-
         return loteRepository.findById(id).orElseThrow(()-> new NotFoundLoteException("Nenhum lote encontrado"));
     }
+
+
+
+
 
     @Transactional
     public Lote atualizarEstoque(Long id, Integer quantidadeConsumida) {
@@ -65,8 +68,17 @@ public class LoteService {
 
         lote.consumirQuantidade(quantidadeConsumida);
 
+
         return loteRepository.save(lote);
     }
+    @Transactional
+    public void atualizarLote(Long id){
+        Lote lote = getById(id);
+        loteRepository.save(lote);
+
+
+    }
+
 
 
     private String darNomeAoLote(){
