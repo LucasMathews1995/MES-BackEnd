@@ -3,7 +3,7 @@ package com.example.mes.producao.api.controller;
 import com.example.mes.producao.application.dto.LoteRequestDTO;
 import com.example.mes.producao.application.dto.LoteResponseDTO;
 import com.example.mes.producao.application.service.LoteService;
-import com.example.mes.producao.domain.StatusLote;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

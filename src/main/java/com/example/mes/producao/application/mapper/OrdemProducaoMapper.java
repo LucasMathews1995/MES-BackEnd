@@ -1,13 +1,13 @@
 package com.example.mes.producao.application.mapper;
 
 
-import com.example.mes.producao.application.dto.LoteResponseDTO;
+
 import com.example.mes.producao.application.dto.OrdemProducaoResponseDTO;
 import com.example.mes.producao.domain.OrdemProducao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+
 
 @Component
 @RequiredArgsConstructor
