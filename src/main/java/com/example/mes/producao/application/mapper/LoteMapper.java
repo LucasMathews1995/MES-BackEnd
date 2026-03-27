@@ -15,6 +15,6 @@ public class LoteMapper {
 
 
     public LoteResponseDTO toDTO(Lote lote) {
-        return new LoteResponseDTO(lote.getId(),lote.getLoteNome(),lote.getQuantidadeDisponivel(),lote.getDataCriacao(),lote.getDescricao());
+        return new LoteResponseDTO(lote.getId(),lote.getNome(),lote.getQuantidadeDisponivel(),lote.getDataCriacao(),lote.getDescricao());
     }
 }

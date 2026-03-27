@@ -2,5 +2,5 @@ package com.example.mes.producao.domain;
 
 public enum StatusProgramacao {
 
-    CRIADA,ABASTECIDO, PRODUCAO, APROVADO
+    CRIADA,PROGRAMADO,ABASTECIDO, PRODUZIDO, APROVADO
 }

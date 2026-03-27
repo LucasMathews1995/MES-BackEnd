@@ -19,18 +19,5 @@ public class EquipamentoController {
 
     private final EquipamentoService service;
 
-    @PostMapping("/save")
-    public ResponseEntity<EquipamentoResponseDTO> salvar(@RequestBody EquipamentoRequestDTO dto){
-    EquipamentoResponseDTO equipamento = service.salvar(dto);
-    return new ResponseEntity<>(equipamento, HttpStatus.CREATED);
-    }
-
-
-    @GetMapping("/all")
-    public ResponseEntity<List<EquipamentoResponseDTO>> listar(){
-        List<EquipamentoResponseDTO> equipamentos = service.getAll();
-
-        return  new ResponseEntity<>(equipamentos, HttpStatus.OK);
-    }
 
 }

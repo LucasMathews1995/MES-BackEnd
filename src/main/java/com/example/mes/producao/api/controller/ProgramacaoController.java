@@ -17,17 +17,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class ProgramacaoController {
 
-    private final ProgramacaoService programacaoService;
 
-    @PostMapping("/save")
-    public ResponseEntity<ProgramacaoResponseDTO> salvar(@RequestBody ProgramacaoRequestDTO dto) {
-        ProgramacaoResponseDTO response =  programacaoService.inciarProgramacao(dto);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
 
-    @GetMapping("/{equipamentoId}/all")
-    public ResponseEntity<List<ProgramacaoResponseDTO>> getAllByEquipamento(@PathVariable Long equipamentoId) {
-        List<ProgramacaoResponseDTO> response = programacaoService.recuperarProgramacaoPorEquipamento(equipamentoId);
-   return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+
 }

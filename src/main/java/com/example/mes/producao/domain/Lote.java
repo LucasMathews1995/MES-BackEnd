@@ -3,10 +3,13 @@ package com.example.mes.producao.domain;
 import com.example.mes.producao.api.exception.QuantidadeNotEnoughException;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 
 import java.time.LocalDateTime;
-
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity(name= "tb_lote")
@@ -18,13 +21,14 @@ public class Lote {
     private Long id;
 
     @Column(length = 100,  nullable = false , unique = true)
-    private String loteNome;
+    private String nome;
 
     @ManyToOne
     @JoinColumn(name = "ordem_producao_id")
     private OrdemProducao ordemProducao;
 
-
+    @OneToMany(mappedBy= "lote" ,cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Programacao> programacao =  new HashSet<>();
 
     @Column(precision  =19,  nullable = false )
     private Integer quantidadeDisponivel;
@@ -36,9 +40,14 @@ public class Lote {
     private String descricao;
 
 
+    @Column(columnDefinition = "serial", insertable = false)
+    @Generated(event = EventType.INSERT)
+    private Integer sequencia;
 
-   @OneToOne(cascade = CascadeType.ALL)
-    private Programacao programacao;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private StatusLote status;
+
 
     public Lote( Integer quantidadeDisponivel, LocalDateTime dataCriacao, String descricao) {
         this.quantidadeDisponivel = quantidadeDisponivel;

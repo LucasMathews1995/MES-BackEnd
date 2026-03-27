@@ -42,11 +42,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
     @ExceptionHandler(QuantidadeNotEnoughException.class)
-    public ResponseEntity<String> handleNotEnough(QuantidadeNotEnoughException ex){
+    public ResponseEntity<String> handleNotEnoughException(QuantidadeNotEnoughException ex){
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(ProgramacaoNotFoundException.class)
-    public ResponseEntity<String> handleNotEnough(ProgramacaoNotFoundException ex){
+    public ResponseEntity<String> handleNotFoundException(ProgramacaoNotFoundException ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(OrdemProducaoNotFoundException.class)
+    public ResponseEntity<String> handleNotFoundException(OrdemProducaoNotFoundException ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(OrdemAndLoteException.class)
+    public ResponseEntity<String> handleNotFoundException(OrdemAndLoteException ex){
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 

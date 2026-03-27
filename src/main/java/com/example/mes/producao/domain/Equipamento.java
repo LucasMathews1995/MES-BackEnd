@@ -46,6 +46,9 @@ public class Equipamento {
 
     private LocalDateTime dataParado;
 
+    @Enumerated(EnumType.STRING)
+    private StatusEquipamento statusEquipamento;
+
 
     public Equipamento(String nome, String sigla , String descricao, LocalDateTime dataAtivacao ) {
         this.nome = nome;

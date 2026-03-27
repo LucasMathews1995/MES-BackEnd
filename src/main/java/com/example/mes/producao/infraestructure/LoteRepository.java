@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface LoteRepository  extends JpaRepository<Lote, Long> {
-    boolean existsByLoteNome(String nomeCandidato);
+    boolean existsByNome(String nomeCandidato);
 
-    Optional<Lote> findByLoteNome(String loteNome);
+
 }
