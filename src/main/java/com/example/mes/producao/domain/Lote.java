@@ -3,8 +3,6 @@ package com.example.mes.producao.domain;
 import com.example.mes.producao.api.exception.QuantidadeNotEnoughException;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Generated;
-import org.hibernate.generator.EventType;
 
 
 import java.time.LocalDateTime;
@@ -35,14 +33,9 @@ public class Lote {
 
 
 
-
     private LocalDateTime dataCriacao;
     private String descricao;
 
-
-    @Column(columnDefinition = "serial", insertable = false)
-    @Generated(event = EventType.INSERT)
-    private Integer sequencia;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -51,7 +44,7 @@ public class Lote {
 
     public Lote( Integer quantidadeDisponivel, LocalDateTime dataCriacao, String descricao) {
         this.quantidadeDisponivel = quantidadeDisponivel;
-
+        this.status = StatusLote.DESABASTECIDO;
         this.dataCriacao = dataCriacao;
         this.descricao = descricao;
     }
@@ -65,6 +58,8 @@ public class Lote {
         }
         this.quantidadeDisponivel -= quantidade;
     }
+
+
 
 
 

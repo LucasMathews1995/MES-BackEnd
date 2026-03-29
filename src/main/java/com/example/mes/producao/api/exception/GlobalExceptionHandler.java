@@ -57,6 +57,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleNotFoundException(OrdemAndLoteException ex){
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(AlreadyExistOrdemProducaoException.class)
+    public ResponseEntity<String> AlreadyExistOrdemProducaoException(AlreadyExistOrdemProducaoException ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(QualityException.class)
+    public ResponseEntity<String> QualityException(QualityException ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
 
 
 

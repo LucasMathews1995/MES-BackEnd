@@ -48,9 +48,12 @@ public class OrdemProducao {
     @Getter
     private Set<Lote> lotes = new HashSet<>();
 
+        public OrdemProducao(){
 
+        }
 
-    public OrdemProducao() {
+    public OrdemProducao(String numeroOP) {
+        this.numeroOP = numeroOP;
         this.status = StatusOP.INICIADA;
         this.dataCriacao = LocalDateTime.now();
         this.dataEncerramento = null;
