@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -33,6 +34,16 @@ public class ProgramacaoService {
 
     public List<Programacao> buscarProgramacoesPorEquipamentoAndStatus(Long equipamentoId, StatusProgramacao status){
         return programacaoRepository.findAllByEquipamentoIdAndStatus(equipamentoId,status).orElseThrow(()-> new ProgramacaoNotFoundException("Não há progrmacão com essse id de equipamento  : " + equipamentoId));
+    }
+
+    public List<Programacao>  buscarProgramacoesPorEquipamentoAteProduzido(Long equipamentoId){
+
+        List<StatusProgramacao> statusIgnorados = Arrays.asList(
+                StatusProgramacao.PRODUZIDO,
+                StatusProgramacao.APROVADO,
+                StatusProgramacao.QUALIDADE
+        );
+        return programacaoRepository.findByEquipamentoIdAndStatusNotIn(equipamentoId, statusIgnorados);
     }
 
 

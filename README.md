@@ -17,17 +17,18 @@ Abaixo estão as rotas principais documentadas no módulo de **Produção**:
 
 ### 📦 Programação (programacao-controller)
 
-| Verbo HTTP | Endpoint | Descrição                                                    |
-| :--- | :--- |:-------------------------------------------------------------|
-| `GET` | `/programacao` | Lista todas as programações existentes.                      |
-| `GET` | `/programacao/{id}` | Busca os detalhes de uma programação específica pelo ID.     |
-| `POST` | `/programacao/save` | Cria uma nova programação no sistema.                        |
-| `PUT` | `/programacao/{id}/{idTroca}/sequencia` | Atualiza a sequência fila da programação.                    |
-| `PATCH` | `/programacao/{id}/abastecer` | Registra o abastecimento de insumos para a programação.      |
-| `PATCH` | `/programacao/{id}/produzir` | Altera o status da programação indicando início da produção. |
-| `PATCH` | `/programacao/{id}/qualidade` | Envia a produção para análise de qualidade.                  |
-| `PATCH` | `/programacao/{id}/aprovar` | Aprova a programação após o fluxo de produção/qualidade.     |
-| `DELETE`| `/programacao/{id}/deletar` | Remove ou inativa uma programação do sistema.                |
+| Verbo HTTP | Endpoint                                | Descrição                                                           |
+| :--- |:----------------------------------------|:--------------------------------------------------------------------|
+| `GET` | `/programacao`                          | Lista todas as programações existentes.                             |
+| `GET` | `/programacao/{id}`                     | Busca os detalhes de uma programação específica pelo ID.            |
+| `GET` | `/programacao/{id}/equipamento_programa_all`                    | Busca os equipamentos que ainda não foram produzidos no equipamento |
+| `POST` | `/programacao/save`                     | Cria uma nova programação no sistema.                               |
+| `PUT` | `/programacao/{id}/{idTroca}/sequencia` | Atualiza a sequência fila da programação.                           |
+| `PATCH` | `/programacao/{id}/abastecer`           | Registra o abastecimento de insumos para a programação.             |
+| `PATCH` | `/programacao/{id}/produzir`            | Altera o status da programação indicando início da produção.        |
+| `PATCH` | `/programacao/{id}/qualidade`           | Envia a produção para análise de qualidade.                         |
+| `PATCH` | `/programacao/{id}/aprovar`             | Aprova a programação após o fluxo de produção/qualidade.            |
+| `DELETE`| `/programacao/{id}/deletar`             | Remove ou inativa uma programação do sistema.                       |
 
 > **Nota para o Recrutador/Desenvolvedor:**  O fluxo de status de uma programação geralmente segue a ordem: **Criar ➔ Abastecer ➔ Produzir ➔ Qualidade ➔ Aprovar**.
 

@@ -43,6 +43,15 @@ public class ProgramacaoController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
+    @GetMapping("{id}/equipamento_programa_all")
+    public ResponseEntity<List<ProgramacaoResponseDTO>> listarProgramacaoParaAbastecer(@PathVariable Long id) {
+        List<Programacao> response = programacaoService.buscarProgramacoesPorEquipamentoAteProduzido(id);
+
+        List<ProgramacaoResponseDTO> responseDTO = response.stream().map(programacaoMapper::toDTO).toList();
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
     @GetMapping
     public ResponseEntity<List<ProgramacaoResponseDTO>> getAllProgramacao() {
 

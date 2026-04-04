@@ -28,6 +28,7 @@ public interface ProgramacaoRepository extends JpaRepository<Programacao, Long> 
     Optional<List<Programacao>> findAllByEquipamentoIdAndStatus(Long equipamentoId, StatusProgramacao status);
 
 
+    List<Programacao> findByEquipamentoIdAndStatusNotIn(Long equipamentoId,List<StatusProgramacao> status);
 
 
 }
