@@ -62,15 +62,6 @@ public class Equipamento {
 
     }
 
-    public void adicionarProgramacao(Programacao programacao){
-        this.programacao.add(programacao);
-        programacao.setEquipamento(this);
-
-    }
-    public void removerProgramacao(Programacao programacao){
-        this.programacao.remove(programacao);
-        programacao.setEquipamento(null);
-    }
 
 
 

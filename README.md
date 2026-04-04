@@ -74,4 +74,6 @@ Abaixo estão as rotas principais documentadas no módulo de **Produção**:
    ```bash
    git clone [https://github.com/LucasMathews1995/MES-BackEnd.git](https://github.com/LucasMathews1995/MES-BackEnd.git)
 
+**UML do Projeto**
 
+![Diagrama de Arquitetura](src/main/docs/diagramas/UMLMES.svg)
