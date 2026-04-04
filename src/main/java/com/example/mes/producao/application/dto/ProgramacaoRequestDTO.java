@@ -1,6 +1,7 @@
 package com.example.mes.producao.application.dto;
 
 
+import jakarta.validation.constraints.NotNull;
 
-public record ProgramacaoRequestDTO(Long ordemProducaoId , Long loteId, Long equipamentoId , Integer quantidadeConsumida) {
+public record ProgramacaoRequestDTO(Long loteId, Long equipamentoId , @NotNull Integer quantidadeConsumida) {
 }

@@ -59,6 +59,27 @@ public class Lote {
         this.quantidadeDisponivel -= quantidade;
     }
 
+    public void retornarQuantidade(Integer quantidade) {
+        if(this.quantidadeDisponivel < quantidade) {
+            throw new QuantidadeNotEnoughException("Quantidade maior que a disponível");
+        }
+        this.quantidadeDisponivel += quantidade;
+    }
+
+    public void removerProgramacao(Programacao programacao) {
+
+        this.programacao.remove(programacao);
+        programacao.setLote(null);
+
+
+    }
+    public void adicionarProgramacao(Programacao programacao) {
+        this.programacao.add(programacao);
+        programacao.setLote(this);
+    }
+
+
+
 
 
 

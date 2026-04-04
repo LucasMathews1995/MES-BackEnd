@@ -2,19 +2,20 @@ package com.example.mes.producao.application.service;
 
 
 import com.example.mes.producao.api.exception.AlreadyExistsEquipamentoException;
+import com.example.mes.producao.api.exception.LoteAbastecidoException;
 import com.example.mes.producao.api.exception.NotFoundEquipamentoException;
-import com.example.mes.producao.api.exception.ProgramacaoNotFoundException;
 import com.example.mes.producao.application.dto.EquipamentoRequestDTO;
-import com.example.mes.producao.application.dto.EquipamentoResponseDTO;
 import com.example.mes.producao.application.mapper.EquipamentoMapper;
 import com.example.mes.producao.domain.Equipamento;
+import com.example.mes.producao.domain.Programacao;
 import com.example.mes.producao.domain.StatusEquipamento;
+import com.example.mes.producao.domain.StatusProgramacao;
 import com.example.mes.producao.infraestructure.EquipamentoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -23,48 +24,70 @@ public class EquipamentoService {
 
     private final EquipamentoRepository equipamentoRepository;
     private final EquipamentoMapper equipamentoMapper;
+    private final ProgramacaoService programacaoService;
 
 
     //CREATE
     @Transactional
-    public EquipamentoResponseDTO criarEquipamento(EquipamentoRequestDTO dto) {
+    public Equipamento criarEquipamento(EquipamentoRequestDTO dto) {
 
         if(equipamentoRepository.existsByNome(dto.nome())){
           throw new AlreadyExistsEquipamentoException("Já existe equipamento om esse nome" + dto.nome());
         }
         Equipamento equipamento = equipamentoMapper.toEntity(dto);
         equipamentoRepository.save(equipamento);
-       return equipamentoMapper.toDTO(equipamento);
+       return equipamento;
     }
 
     //GET
-    public EquipamentoResponseDTO buscarEquipamento(Long id) {
-        Equipamento equipamento =equipamentoRepository.findById(id).orElseThrow(()-> new NotFoundEquipamentoException("Nenhum equipamento encontrado."));
-        return equipamentoMapper.toDTO(equipamento);
+    public Equipamento buscarEquipamentoPorId(Long id) {
+        return equipamentoRepository.findById(id).orElseThrow(()-> new NotFoundEquipamentoException("Nenhum equipamento encontrado."));
+
     }
 
-    public List<EquipamentoResponseDTO> buscarEquipamentos() {
-        List<Equipamento> equipamentos =equipamentoRepository.findAll();
-
-        return equipamentos.stream().sorted(Comparator.comparing(Equipamento::getNome)).map(equipamentoMapper::toDTO).toList();
-
+    public List<Equipamento> buscarEquipamentos() {
+        return equipamentoRepository.findAll();
 
     }
     //UPDATE
     @Transactional
-    public void desactivateEquipment(Long id , StatusEquipamento status) {
+    public void desativarEquipamento(Long id) {
 
-        Equipamento equipamento =equipamentoRepository.findById(id).orElseThrow(()-> new NotFoundEquipamentoException("Nenhum equipamento encontrado."));
-        equipamento.setStatusEquipamento(status);
+        Equipamento equipamento = equipamentoRepository.findById(id).orElseThrow(() -> new NotFoundEquipamentoException("Nenhum equipamento encontrado."));
+
+
+        equipamento.setStatusEquipamento(StatusEquipamento.PARADO);
+        equipamento.getProgramacao().clear();
+
         equipamentoRepository.save(equipamento);
+    }
+    @Transactional
+    public void pararEquipamento(Long id) {
 
+        Equipamento equipamento = equipamentoRepository.findById(id).orElseThrow(() -> new NotFoundEquipamentoException("Nenhum equipamento encontrado."));
+
+
+        equipamento.setStatusEquipamento(StatusEquipamento.PARADO);
+        equipamento.setDataParado(LocalDateTime.now());
+
+
+        equipamentoRepository.save(equipamento);
     }
 
     //DELETE
     @Transactional
-    public void deleteEquipment(Long id) {
-        Equipamento equipamento =equipamentoRepository.findById(id).orElseThrow(()-> new NotFoundEquipamentoException("Nenhum equipamento encontrado."));
-        if(!equipamento.getProgramacao().isEmpty()){throw new ProgramacaoNotFoundException("Nenhuma programacao encontrada.");}
+    public void deletarEquipamento(Long id) {
+        Equipamento equipamento = equipamentoRepository.findById(id).orElseThrow(() -> new NotFoundEquipamentoException("Nenhum equipamento encontrado."));
+
+        List<Programacao> programasAbastecidos = programacaoService.buscarProgramacoesPorEquipamentoAndStatus(equipamento.getId(),StatusProgramacao.ABASTECIDO);
+
+
+
+
+        if (!programasAbastecidos.isEmpty()) {
+            throw new LoteAbastecidoException("Tem programa ainda como abastecido . Portanto não é possível deletar o Equipamento");
+        }
+
         equipamentoRepository.delete(equipamento);
 
     }

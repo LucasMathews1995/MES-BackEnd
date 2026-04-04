@@ -65,6 +65,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> QualityException(QualityException ex){
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
+    @ExceptionHandler(LoteAbastecidoException.class)
+    public ResponseEntity<String> LoteAbastecidoException(LoteAbastecidoException ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
 
 
 

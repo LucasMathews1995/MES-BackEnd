@@ -1,6 +1,9 @@
 package com.example.mes.producao.application.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 
-public record LoteRequestDTO ( Integer quantidadeDisponivel, LocalDateTime dataCriacao, String descricao){
+public record LoteRequestDTO (@NotBlank Integer quantidadeDisponivel, @NotNull LocalDateTime dataCriacao,@NotBlank String descricao){
 }

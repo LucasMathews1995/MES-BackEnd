@@ -5,13 +5,11 @@ import com.example.mes.producao.api.exception.OrdemAndLoteException;
 import com.example.mes.producao.domain.Lote;
 import com.example.mes.producao.domain.OrdemProducao;
 import com.example.mes.producao.domain.StatusLote;
-import com.example.mes.producao.domain.StatusOP;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -32,7 +30,7 @@ public class OrdemProducaoProcessamentoService {
     public OrdemProducao createOrdemProducao( ) {
         String numeroUnico = generateOrdemProducaoNome();
         OrdemProducao novaOP = new OrdemProducao(numeroUnico);
-        novaOP.setStatus(StatusOP.INICIADA);
+
         return  ordemProducaoService.salvarOrdemProducao(novaOP);
     }
 
@@ -44,7 +42,7 @@ public class OrdemProducaoProcessamentoService {
 
     @Transactional
     public OrdemProducao vincular(Long idLote, Long idProd){
-        Lote lote = loteDataService.buscarPorId(idLote);
+        Lote lote = loteDataService.buscarLotePorId(idLote);
 
         if(lote.getOrdemProducao()!= null ){
             throw new AlreadyExistOrdemProducaoException("Esse lote "+ lote.getNome() + " já possui uma ordem de produção , não pode vinculá-lo " );
@@ -58,7 +56,7 @@ public class OrdemProducaoProcessamentoService {
     }
 
     @Transactional
-    public void deleteOrdemProducao(Long idProd){
+    public void deletarOrdemProducao(Long idProd){
         OrdemProducao ordem  = ordemProducaoService.buscarPorId(idProd);
 
 
@@ -68,7 +66,7 @@ public class OrdemProducaoProcessamentoService {
                 .findAny();
 
         if(lote.isPresent()){
-            throw new OrdemAndLoteException("Ainda há lotes abastecidos a  serem desvinculados do processo precisa desabastecer.");
+            throw new OrdemAndLoteException("Ainda há lotes abastecidos a serem desvinculados do processo .Precisa desabastecer.");
         }
 
         ordemProducaoService.deletarOrdemProducao(ordem);
@@ -103,10 +101,9 @@ public class OrdemProducaoProcessamentoService {
 
             ordemProducaoService.salvarOrdemProducao(ordem);
 
-
-
-
     }
+
+
     @Transactional
     public void deleteOrdemVenda(Long idProd){
         OrdemProducao ordem = ordemProducaoService.buscarPorId(idProd);

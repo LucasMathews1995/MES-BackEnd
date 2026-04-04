@@ -47,19 +47,21 @@ public class OrdemProducaoService {
     public void deletarOrdemProducao(OrdemProducao ordemProducao){
         ordemProducaoRepository.delete(ordemProducao);
     }
+
+    public List<Lote> buscarLotesPorOrdemProducao(Long id){
+        OrdemProducao op = buscarPorId(id);
+
+        return op.getLotes().stream().toList();
+    }
+
+
+
     public boolean existeOrdemProducao (String nome){
        return ordemProducaoRepository.existsByNumeroOP(nome);
 
     }
 
 
-    public OrdemProducaoResponseDTO findDtoById(Long id ) {
-        OrdemProducao ordem =  ordemProducaoRepository.findById(id)
-                .orElseThrow(()-> new OrdemProducaoNotFoundException("Não há ordem de produção para essa ordem " + id));
-
-        return ordemProducaoMapper.toDTO(ordem);
-
-    }
 
 
 

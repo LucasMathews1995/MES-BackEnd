@@ -6,6 +6,7 @@ import com.example.mes.producao.application.mapper.LoteMapper;
 import com.example.mes.producao.application.service.LoteDataService;
 
 import com.example.mes.producao.application.service.LoteProcessamentoService;
+import com.example.mes.producao.domain.Lote;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,54 +27,42 @@ public class LoteController {
 
 
     @PostMapping("/save")
-    public ResponseEntity<LoteResponseDTO> createLote(@RequestBody @Valid LoteRequestDTO loteRequestDTO){
-        LoteResponseDTO lote = loteProcessamentoService.createLote(loteRequestDTO);
+    public ResponseEntity<LoteResponseDTO> criarLote(@RequestBody @Valid LoteRequestDTO loteRequestDTO){
+        Lote response = loteProcessamentoService.criarLote(loteRequestDTO);
+        LoteResponseDTO dto =   loteMapper.toDTO(response);
 
-        return  new ResponseEntity<>(lote, HttpStatus.OK);
+        return  new ResponseEntity<>(dto, HttpStatus.OK);
     }
     @GetMapping
-    public ResponseEntity<List<LoteResponseDTO>> getAllLotes(){
+    public ResponseEntity<List<LoteResponseDTO>> buscarTodos(){
         List<LoteResponseDTO> dto  = loteDataService.findAllLotes().stream().map(loteMapper::toDTO).toList();
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LoteResponseDTO> getLoteById(@PathVariable Long id){
-        LoteResponseDTO dto = loteMapper.toDTO(loteDataService.buscarPorId(id));
+    public ResponseEntity<LoteResponseDTO> buscarPorId(@PathVariable Long id){
+        LoteResponseDTO dto = loteMapper.toDTO(loteDataService.buscarLotePorId(id));
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
-
-
-    @PatchMapping("{idLote}/abastecer")
-    public ResponseEntity<Void> abastecerLote(@PathVariable Long idLote){
-        loteProcessamentoService.abastecerLote(idLote);
-        return new ResponseEntity<>( HttpStatus.OK);
+    @GetMapping("/sem-op")
+    public ResponseEntity<List<LoteResponseDTO>> buscarTodosLotesSemOrdemProducao(){
+        List<Lote> lotes =loteDataService.buscarTodosSemOrdemProducao();
+       List<LoteResponseDTO> response = lotes.stream().map(loteMapper::toDTO).toList();
+       return  new ResponseEntity<>(response, HttpStatus.OK);
     }
+    @PatchMapping("/{id}/desabastecer")
+    public ResponseEntity<Void> desabastecerPorId(@PathVariable Long id){
+        loteProcessamentoService.desabastecerLote(id);
 
-    @PatchMapping("{idLote}/produzir")
-    public ResponseEntity<Void> produzirLote(@PathVariable Long idLote){
-        loteProcessamentoService.abastecerLote(idLote);
-        return new ResponseEntity<>( HttpStatus.OK);
+        return ResponseEntity.ok().build();
+
     }
-
-    @PatchMapping("/{idLote}/inspecao")
-    public ResponseEntity<Void> colocarEmQualidade(@PathVariable Long idLote){
-        loteProcessamentoService.colocarLoteEmqQualidade(idLote);
-        return new ResponseEntity<>( HttpStatus.OK);
-    }
-
-    @PatchMapping("/{idLote}/liberacao")
-    public ResponseEntity<Void> retirarDeLote(@PathVariable Long idLote){
-        loteProcessamentoService.retirarLoteEmqQualidade(idLote);
-        return new ResponseEntity<>( HttpStatus.OK);
-    }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarLote(@PathVariable Long id){
 
-        loteDataService.deleteLoteById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        loteProcessamentoService.excluirLote(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
