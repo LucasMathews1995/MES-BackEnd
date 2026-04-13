@@ -61,6 +61,7 @@ public class EquipamentoService {
 
         equipamentoRepository.save(equipamento);
     }
+
     @Transactional
     public void pararEquipamento(Long id) {
 
@@ -80,9 +81,6 @@ public class EquipamentoService {
         Equipamento equipamento = equipamentoRepository.findById(id).orElseThrow(() -> new NotFoundEquipamentoException("Nenhum equipamento encontrado."));
 
         List<Programacao> programasAbastecidos = programacaoService.buscarProgramacoesPorEquipamentoAndStatus(equipamento.getId(),StatusProgramacao.ABASTECIDO);
-
-
-
 
         if (!programasAbastecidos.isEmpty()) {
             throw new LoteAbastecidoException("Tem programa ainda como abastecido . Portanto não é possível deletar o Equipamento");

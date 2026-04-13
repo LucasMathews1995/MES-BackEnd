@@ -1,13 +1,12 @@
 package com.example.mes.producao.application.service;
 
 
+import com.example.mes.producao.api.exception.OrdemAndLoteException;
 import com.example.mes.producao.api.exception.OrdemProducaoNotFoundException;
-import com.example.mes.producao.application.dto.OrdemProducaoResponseDTO;
 import com.example.mes.producao.application.mapper.OrdemProducaoMapper;
 import com.example.mes.producao.domain.Lote;
 import com.example.mes.producao.domain.OrdemProducao;
-import com.example.mes.producao.domain.StatusOP;
-
+import com.example.mes.producao.domain.StatusLote;
 import com.example.mes.producao.infraestructure.OrdemProducaoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,31 +23,19 @@ import java.util.Random;
 public class OrdemProducaoService {
 
     private final OrdemProducaoRepository ordemProducaoRepository;
-    private final OrdemProducaoMapper ordemProducaoMapper;
-    private final Random random= new Random();
+    private final Random random = new Random();
 
 
-
-
-
-    @Transactional
-    public OrdemProducao salvarOrdemProducao(OrdemProducao ordemProducao) {
-        return   ordemProducaoRepository.save(ordemProducao);
+    public OrdemProducao buscarPorId(Long id) {
+        return ordemProducaoRepository.findById(id).orElseThrow(() -> new OrdemProducaoNotFoundException("Não há ordem de produção para essa ordem " + id));
     }
 
-    public OrdemProducao buscarPorId(Long id){
-        return ordemProducaoRepository.findById(id).orElseThrow(()-> new OrdemProducaoNotFoundException("Não há ordem de produção para essa ordem " + id));
-    }
-    public List<OrdemProducao> buscarTodasOrdemProducao(){
+    public List<OrdemProducao> buscarTodasOrdemProducao() {
         return ordemProducaoRepository.findAll();
     }
 
 
-    public void deletarOrdemProducao(OrdemProducao ordemProducao){
-        ordemProducaoRepository.delete(ordemProducao);
-    }
-
-    public List<Lote> buscarLotesPorOrdemProducao(Long id){
+    public List<Lote> buscarLotesPorOrdemProducao(Long id) {
         OrdemProducao op = buscarPorId(id);
 
         return op.getLotes().stream().toList();
@@ -56,38 +43,79 @@ public class OrdemProducaoService {
 
 
 
-    public boolean existeOrdemProducao (String nome){
-       return ordemProducaoRepository.existsByNumeroOP(nome);
+
+    @Transactional
+    public OrdemProducao createOrdemProducao() {
+        String numeroUnico = generateOrdemProducaoNome();
+        OrdemProducao novaOP = new OrdemProducao(numeroUnico);
+
+        return ordemProducaoRepository.save(novaOP);
+    }
+
+
+    @Transactional
+    public void deletarOrdemProducao(Long idProd) {
+        OrdemProducao ordem = buscarPorId(idProd);
+
+
+        Optional<Lote> lote = ordem.getLotes().stream()
+                .filter(it -> (it.getStatus().equals(StatusLote.ABASTECIDO)))
+                .findAny();
+
+        if (lote.isPresent()) {
+            throw new OrdemAndLoteException("Ainda há lotes abastecidos a serem desvinculados do processo .Precisa desabastecer.");
+        }
+
+        ordemProducaoRepository.delete(ordem);
 
     }
 
 
+    @Transactional
+    public void vincularOrdemVenda(Long idProd, Long idVenda) {
+        OrdemProducao ordem = buscarPorId(idProd);
+
+        ordem.setOrdemVendaId(idVenda);
+
+        ordemProducaoRepository.save(ordem);
+
+    }
+
+    @Transactional
+    public void desvincularLote(Long idLote, Long idProd) {
+        OrdemProducao ordem = buscarPorId(idProd);
+
+        Optional<Lote> lote = ordem.getLotes().stream()
+                .filter(it -> it.getId().equals(idLote) && (it.getStatus().equals(StatusLote.QUALIDADE) || it.getStatus().equals(StatusLote.APROVADO)))
+                .findAny();
+
+        if (lote.isPresent()) {
+            ordem.getLotes().forEach(ordem::removeLote);
+        } else if (!ordem.getLotes().isEmpty()) {
+            throw new OrdemAndLoteException("O lote está somente abastecido ou produzido na OP . Portanto não pode desvincular, coloque em qualidade ou aprove-o para conseguir");
+        }
+
+        ordemProducaoRepository.save(ordem);
+
+    }
 
 
+    @Transactional
 
+    public void deleteOrdemVenda(Long idProd) {
+        OrdemProducao ordem = buscarPorId(idProd);
 
+        ordem.setOrdemVendaId(null);
 
+        ordemProducaoRepository.save(ordem);
+    }
 
+    private String generateOrdemProducaoNome() {
+        String prefixo = "OP";
+        int numeroBase = random.nextInt(1_000_000, 9_999_999);
+        return String.format(prefixo + numeroBase);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    }
 
 
 

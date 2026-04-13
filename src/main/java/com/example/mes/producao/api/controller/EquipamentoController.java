@@ -4,6 +4,7 @@ package com.example.mes.producao.api.controller;
 
 import com.example.mes.producao.application.dto.EquipamentoRequestDTO;
 import com.example.mes.producao.application.dto.EquipamentoResponseDTO;
+import com.example.mes.producao.application.facade.ProducaoFacade;
 import com.example.mes.producao.application.mapper.EquipamentoMapper;
 import com.example.mes.producao.application.service.EquipamentoService;
 import com.example.mes.producao.domain.Equipamento;
@@ -24,6 +25,8 @@ public class EquipamentoController {
 
     private final EquipamentoService service;
     private final EquipamentoMapper mapper;
+    private final ProducaoFacade producaoFacade;
+
 
 
 
@@ -48,7 +51,7 @@ public class EquipamentoController {
     @DeleteMapping("/{id}/remover")
     public ResponseEntity<Void> removerEquipamento(@PathVariable Long id){
 
-         service.deletarEquipamento(id);
+         producaoFacade.deletarEquipamentoComValidacao(id);
          return ResponseEntity.noContent().build();
 
     }
@@ -56,6 +59,12 @@ public class EquipamentoController {
     public ResponseEntity<Void> desativarEquipamento(@PathVariable Long id){
 
         service.desativarEquipamento(id);
+        return ResponseEntity.noContent().build();
+
+    }
+    @PatchMapping("{id}/pararEquipamento")
+    public ResponseEntity<Void> pararEquipamento(@PathVariable Long id){
+        service.pararEquipamento(id);
         return ResponseEntity.noContent().build();
 
     }

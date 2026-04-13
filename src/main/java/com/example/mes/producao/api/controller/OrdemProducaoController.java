@@ -2,9 +2,9 @@ package com.example.mes.producao.api.controller;
 
 import com.example.mes.producao.application.dto.LoteResponseDTO;
 import com.example.mes.producao.application.dto.OrdemProducaoResponseDTO;
+import com.example.mes.producao.application.facade.ProducaoFacade;
 import com.example.mes.producao.application.mapper.LoteMapper;
 import com.example.mes.producao.application.mapper.OrdemProducaoMapper;
-import com.example.mes.producao.application.service.OrdemProducaoProcessamentoService;
 import com.example.mes.producao.application.service.OrdemProducaoService;
 import com.example.mes.producao.domain.Lote;
 import com.example.mes.producao.domain.OrdemProducao;
@@ -22,14 +22,14 @@ import java.util.List;
 public class OrdemProducaoController {
 
     private final OrdemProducaoService ordemProducaoService;
-    private final OrdemProducaoProcessamentoService ordemProducaoProcessamentoService;
     private final OrdemProducaoMapper ordemProducaoMapper;
+    private final ProducaoFacade producaoFacade;
     private final LoteMapper loteMapper;
 
 
     @PostMapping("/save")
     public ResponseEntity<OrdemProducaoResponseDTO> createOrdemProducao(){
-        OrdemProducao ordem=  ordemProducaoProcessamentoService.createOrdemProducao();
+        OrdemProducao ordem=  ordemProducaoService.createOrdemProducao();
         OrdemProducaoResponseDTO dto = ordemProducaoMapper.toDTO(ordem);
     return ResponseEntity.ok().body(dto);
     }
@@ -59,7 +59,7 @@ public class OrdemProducaoController {
 
     @PatchMapping("/{idLote}/{idProd}")
     public ResponseEntity<OrdemProducaoResponseDTO> boundOrdemProducao(@PathVariable Long idLote , @PathVariable Long idProd){
-        OrdemProducao op = ordemProducaoProcessamentoService.vincular(idLote, idProd);
+        OrdemProducao op = producaoFacade.vincularOrdemProducaoAoLote(idLote, idProd);
         OrdemProducaoResponseDTO dto = ordemProducaoMapper.toDTO(op);
 
         return new ResponseEntity<>(dto, HttpStatus.OK);
@@ -67,12 +67,12 @@ public class OrdemProducaoController {
 
     @DeleteMapping("/{idProd}")
     public ResponseEntity<OrdemProducaoResponseDTO> removeLote(@PathVariable Long idProd){
-        ordemProducaoProcessamentoService.deletarOrdemProducao(idProd);
+        ordemProducaoService.deletarOrdemProducao(idProd);
       return ResponseEntity.noContent().build();
     }
     @DeleteMapping("{idLote}/{idProd}")
     public ResponseEntity<Void> removeLote(@PathVariable Long idLote, @PathVariable Long idProd){
-        ordemProducaoProcessamentoService.desvincularLote(idLote,idProd);
+        ordemProducaoService.desvincularLote(idLote,idProd);
 
         return ResponseEntity.ok().build();
     }

@@ -1,11 +1,7 @@
 package com.example.mes.producao.application.service;
 
-import com.example.mes.producao.api.exception.AbastecimentoLoteException;
-import com.example.mes.producao.api.exception.LoteAbastecidoException;
-import com.example.mes.producao.api.exception.NotFoundLoteException;
-import com.example.mes.producao.api.exception.QualityException;
+import com.example.mes.producao.api.exception.*;
 import com.example.mes.producao.application.dto.LoteRequestDTO;
-import com.example.mes.producao.application.dto.LoteResponseDTO;
 import com.example.mes.producao.application.mapper.LoteMapper;
 import com.example.mes.producao.domain.*;
 import com.example.mes.producao.infraestructure.LoteRepository;
@@ -18,13 +14,33 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
-public class LoteProcessamentoService {
-
-    private final LoteDataService loteDataService;
+public class LoteService {
+    private final LoteRepository loteRepository;
     private final LoteMapper loteMapper;
     private final Random random = new Random();
-    private final ProgramacaoService programacaoService;
 
+
+    @Transactional
+    public Lote salvarLote(Lote lote) {
+       return loteRepository.save (lote);
+
+    }
+    //R
+    public Lote buscarLotePorId(Long id){
+        return  loteRepository.findById(id).orElseThrow(()-> new NotFoundLoteException("Nenhum lote foi encontrado com esse id "+ id));
+    }
+    public List<Lote> findAllLotes(){
+        return    loteRepository.findAll();
+
+    }
+    public List<Lote> buscarTodosSemOrdemProducao(){
+        return  loteRepository.findAll().stream().filter(it -> it.getOrdemProducao()==null).toList();
+    }
+
+
+    public Programacao buscarUltimaProgramacaoPorLote(Long loteId){
+        return loteRepository.buscarUltimaProgramacaoPorLote(loteId).orElseThrow(()-> new ProgramacaoNotFoundException("Nenhuma programacao foi encontrado com esse id "+ loteId));
+    }
 
 
     @Transactional
@@ -34,74 +50,66 @@ public class LoteProcessamentoService {
         lote.setNome(generateLoteNome());
         lote.setStatus(StatusLote.DESABASTECIDO);
 
-        loteDataService.salvarLote(lote);
+        loteRepository.save(lote);
 
 
         return lote;
 
     }
 
-    @Transactional
-    public void desabastecerLote(Long id) {
-
-        Lote lote = loteDataService.buscarLotePorId(id);
-       Programacao programacao  =   loteDataService.buscarUltimaProgramacaoPorLote(id);
-
-        if (!lote.getStatus().equals(StatusLote.ABASTECIDO)) {
-            throw new AbastecimentoLoteException("Lote " + lote.getNome() + " não está abastecido");
-        }
-
-        lote.setStatus(StatusLote.DESABASTECIDO);
-
-
-        programacaoService.deletarProgramacaoPorId(programacao.getId());
-        lote.removerProgramacao(programacao);
-
-        loteDataService.salvarLote(lote);
-
-
-    }
-
-
 
     @Transactional
-    public void abastecerLote(Long id ){
-        Lote lote = loteDataService.buscarLotePorId(id);
+    public Lote abastecerLote(Long id ){
+        Lote lote = buscarLotePorId(id);
 
         validarTransicaoAbastecimento(lote.getStatus(),StatusLote.ABASTECIDO);
 
         lote.setStatus(StatusLote.ABASTECIDO);
 
-
-
-
+        return loteRepository.save(lote);
     }
-    @Transactional
-    public void produzirLote(Long id ){
-    Lote lote =    loteDataService.buscarLotePorId(id);
 
-        validarTransicaoAbastecimento(lote.getStatus(),StatusLote.PRODUZIDO);
+    @Transactional
+    public Lote programarLote(Long id ){
+        Lote lote = buscarLotePorId(id);
+
+        validarTransicaoAbastecimento(lote.getStatus(),StatusLote.PROGRAMADO);
+
+        lote.setStatus(StatusLote.PROGRAMADO);
+
+        return loteRepository.save(lote);
+    }
+
+
+
+    @Transactional
+    public Lote produzirLote(Long id) {
+        Lote lote = buscarLotePorId(id);
+
+        validarTransicaoAbastecimento(lote.getStatus(), StatusLote.PRODUZIDO);
         lote.setStatus(StatusLote.PRODUZIDO);
 
-
-
+    return loteRepository.save(lote);
     }
+
     @Transactional
-    public void aprovarLote(Long id ){
-        Lote lote =    loteDataService.buscarLotePorId(id);
+    public Lote aprovarLote(Long id ){
+        Lote lote =  buscarLotePorId(id);
 
         validarTransicaoAbastecimento(lote.getStatus(),StatusLote.APROVADO);
         lote.setStatus(StatusLote.APROVADO);
 
+        return loteRepository.save(lote);
+
 
     }
 
 
 
     @Transactional
-    public void colocarLoteEmQualidade(Long id,Integer quantidade ){
+    public Lote colocarLoteEmQualidade(Long id,Integer quantidade ){
 
-        Lote lote =    loteDataService.buscarLotePorId(id);
+        Lote lote =    buscarLotePorId(id);
 
        if(lote.getStatus() == StatusLote.APROVADO || lote.getStatus() == StatusLote.PRODUZIDO){
            throw new QualityException("O lote não pode ser colocado em qualidade pois seu status é de : " + lote.getStatus());
@@ -110,36 +118,33 @@ public class LoteProcessamentoService {
        lote.setStatus(StatusLote.QUALIDADE);
        lote.retornarQuantidade(quantidade);
 
-
-
         OrdemProducao ordem = lote.getOrdemProducao();
 
         if(ordem != null){
             ordem.removeLote(lote);
         }
-
+       return loteRepository.save(lote);
     }
 
 
     @Transactional
     public void retirarLoteEmQualidade(Long id ){
-        Lote lote =    loteDataService.buscarLotePorId(id);
+        Lote lote =    buscarLotePorId(id);
 
         if(!lote.getStatus().equals(StatusLote.QUALIDADE)){
             throw new QualityException("O lote não pode ser retirado em qualidade pois seu status é de : " + lote.getStatus() + " e ele precisa estar em qualidade");
         }
 
-
         lote.setStatus(StatusLote.DESABASTECIDO);
+
+        loteRepository.save(lote);
 
     }
 
     @Transactional
     public void excluirLote(Long id) {
-        Lote lote = loteDataService.buscarLotePorId(id);
-        List<Programacao> listaLote = lote.getProgramacao().stream().filter(it-> it.getStatus().equals(StatusProgramacao.PROGRAMADO) || it.getStatus().equals(StatusProgramacao.CRIADA)).toList();
-
-
+        Lote lote = buscarLotePorId(id);
+        List<Programacao> listaLote = lote.getProgramacao().stream().filter(it-> it.getStatus().equals(StatusProgramacao.PROGRAMADO) || it.getStatus().equals(StatusProgramacao.CRIADO)).toList();
 
 
         if (!lote.getStatus().equals(StatusLote.DESABASTECIDO)) {
@@ -149,11 +154,9 @@ public class LoteProcessamentoService {
         }
 
 
-        loteDataService.deleteLoteById(id);
+        loteRepository.deleteById(id);
 
     }
-
-
 
 
     private void validarTransicaoAbastecimento(StatusLote atual, StatusLote novo) {
@@ -176,7 +179,7 @@ public class LoteProcessamentoService {
         char prefixo = 'A';
         int numeroBase =  random.nextInt(9000);
         String nome =String.format("%s%04d%s", prefixo, numeroBase, "0100");
-        while(loteDataService.existirPorNome(nome)){
+        while(loteRepository.existsByNome(nome)){
             numeroBase = random.nextInt(9000) ;
             prefixo++;
             nome = String.format("%s%04d%s", prefixo, numeroBase, "0100");
