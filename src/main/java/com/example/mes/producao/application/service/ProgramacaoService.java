@@ -3,6 +3,7 @@ package com.example.mes.producao.application.service;
 
 import com.example.mes.producao.api.exception.NotFoundEquipamentoException;
 import com.example.mes.producao.api.exception.ProgramacaoNotFoundException;
+import com.example.mes.producao.application.dto.ProgramacaoOrdemProducaoDTO;
 import com.example.mes.producao.application.dto.ProgramacaoResponseDTO;
 import com.example.mes.producao.application.mapper.ProgramacaoMapper;
 import com.example.mes.producao.domain.Programacao;
@@ -35,11 +36,27 @@ public class ProgramacaoService {
     public Programacao buscarProgramacaoPorId(Long id){
        return  programacaoRepository.findById(id).orElseThrow(()-> new ProgramacaoNotFoundException("Nenhuma programacao encontrada"));
     }
+    public List<ProgramacaoOrdemProducaoDTO> buscarProgramacaoCriado(Long id){
+
+       List<ProgramacaoOrdemProducaoDTO> programacoesCriadas = programacaoRepository.findProgramacoesCriadas(id);
+       if(programacoesCriadas.isEmpty()){
+           throw new  ProgramacaoNotFoundException("Nenhuma programacao encontrada");
+       }
+       return programacoesCriadas;
+    }
 
 
 
     public List<Programacao> buscarProgramacoesPorEquipamentoAndStatus(Long equipamentoId, StatusProgramacao status){
-        return programacaoRepository.findAllByEquipamentoIdAndStatus(equipamentoId,status).orElseThrow(()-> new ProgramacaoNotFoundException("Não há progrmacão com essse id de equipamento  : " + equipamentoId));
+     List<Programacao> programacao =   programacaoRepository.findAllByEquipamentoIdAndStatus(equipamentoId,status);
+
+        if(programacao.isEmpty()){
+            throw new ProgramacaoNotFoundException("Nenhuma programacao encontrada com esse equipamento" +  equipamentoId);
+        }
+
+        return programacao;
+
+
     }
 
 
@@ -59,6 +76,18 @@ public class ProgramacaoService {
 
         return programacoes.stream().map(it -> programacaoMapper.toDTODetalhe(it, it.getLote(), it.getEquipamento())).toList();
 
+    }
+
+
+    public List<ProgramacaoOrdemProducaoDTO> buscarProgrmacaoDoEquipamento(Long equipamentoId){
+
+        List<ProgramacaoOrdemProducaoDTO> programacoes =    programacaoRepository.findProgramacaoByEquipamento(equipamentoId);
+
+        if (programacoes.isEmpty()) {
+           return null;
+        }
+
+        return programacoes;
     }
 
 

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public record ProgramacaoResponseDTO(@NotNull Long id,
                                      @NotBlank StatusProgramacao status, @NotNull LocalDateTime dataHoraProgramada,
                                      @NotNull  Integer quantidadeConsumida,
+                                     @NotNull Integer fila,
                                      @NotNull Long loteId,@NotBlank String numeroLote,
                                      @NotNull Long equipamentoId,
                                      @NotBlank String equipamentoNome) {

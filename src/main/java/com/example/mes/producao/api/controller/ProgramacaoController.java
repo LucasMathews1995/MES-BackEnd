@@ -1,6 +1,7 @@
 package com.example.mes.producao.api.controller;
 
 
+import com.example.mes.producao.application.dto.ProgramacaoOrdemProducaoDTO;
 import com.example.mes.producao.application.dto.ProgramacaoRequestDTO;
 import com.example.mes.producao.application.dto.ProgramacaoResponseDTO;
 import com.example.mes.producao.application.dto.ProgramacaoResumoResponseDTO;
@@ -54,6 +55,19 @@ public class ProgramacaoController {
 
         return ResponseEntity.ok().body(response);
     }
+    @GetMapping("equipamento/programacao_criada/{id}")
+    public ResponseEntity<List<ProgramacaoOrdemProducaoDTO>> listarProgramacaoCriadas(@PathVariable Long id) {
+        List<ProgramacaoOrdemProducaoDTO> response  = programacaoService.buscarProgramacaoCriado(id);
+        return  ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/ordem_producao/{equipamentoId}")
+    public ResponseEntity<List<ProgramacaoOrdemProducaoDTO>> buscarProgramacaoComOrdemProducao(@PathVariable Long equipamentoId){
+        List<ProgramacaoOrdemProducaoDTO> response = programacaoService.buscarProgrmacaoDoEquipamento(equipamentoId);
+
+
+        return ResponseEntity.ok().body(response);
+    }
 
 
 
@@ -65,6 +79,13 @@ public class ProgramacaoController {
 
         return ResponseEntity.ok().body(responseDTO);
     }
+    @PatchMapping("/{id}/programar")
+    public ResponseEntity<ProgramacaoResumoResponseDTO> programarProgramacao(@PathVariable Long id, @RequestBody @Valid ProgramacaoRequestDTO programacaoRequestDTO) {
+        ProgramacaoResumoResponseDTO response = producaoFacade.alterarStatus(id, programacaoRequestDTO, StatusProgramacao.PROGRAMADO);
+
+        return ResponseEntity.ok().body(response);
+    }
+
 
     @PatchMapping("/{id}/abastecer")
     public ResponseEntity<ProgramacaoResumoResponseDTO> abastecerProgramacao(@PathVariable Long id, @RequestBody @Valid ProgramacaoRequestDTO programacaoRequestDTO) {

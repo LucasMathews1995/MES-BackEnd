@@ -8,6 +8,7 @@ import com.example.mes.producao.application.facade.ProducaoFacade;
 import com.example.mes.producao.application.mapper.EquipamentoMapper;
 import com.example.mes.producao.application.service.EquipamentoService;
 import com.example.mes.producao.domain.Equipamento;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,7 @@ public class EquipamentoController {
 
     }
     @GetMapping
+    @RolesAllowed("Manager")
     public ResponseEntity<List<EquipamentoResponseDTO>> buscarEquipamentos(){
        List<Equipamento> equipamento =  service.buscarEquipamentos();
      List<EquipamentoResponseDTO> dto =   equipamento.stream().sorted(Comparator.comparing(Equipamento::getNome)).map(mapper::toDTO).toList();
@@ -48,6 +50,11 @@ public class EquipamentoController {
         Equipamento equipamento  = service.buscarEquipamentoPorId(id);
         return ResponseEntity.ok(mapper.toDTO(equipamento));
     }
+
+
+
+
+
     @DeleteMapping("/{id}/remover")
     public ResponseEntity<Void> removerEquipamento(@PathVariable Long id){
 
@@ -62,11 +69,17 @@ public class EquipamentoController {
         return ResponseEntity.noContent().build();
 
     }
-    @PatchMapping("{id}/pararEquipamento")
+    @PatchMapping("{id}/parar-equipamento")
     public ResponseEntity<Void> pararEquipamento(@PathVariable Long id){
         service.pararEquipamento(id);
         return ResponseEntity.noContent().build();
 
+    }
+
+    @PatchMapping("{id}/ativar_equipamento")
+    public ResponseEntity<Void> ativarEquipamento(@PathVariable Long id){
+        service.ativarEquipamento(id);
+        return ResponseEntity.noContent().build();
     }
 
 

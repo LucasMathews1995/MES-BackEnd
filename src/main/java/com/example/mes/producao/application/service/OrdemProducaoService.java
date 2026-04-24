@@ -1,6 +1,7 @@
 package com.example.mes.producao.application.service;
 
 
+import com.example.mes.producao.api.exception.NotFoundLoteException;
 import com.example.mes.producao.api.exception.OrdemAndLoteException;
 import com.example.mes.producao.api.exception.OrdemProducaoNotFoundException;
 import com.example.mes.producao.application.mapper.OrdemProducaoMapper;
@@ -31,14 +32,25 @@ public class OrdemProducaoService {
     }
 
     public List<OrdemProducao> buscarTodasOrdemProducao() {
-        return ordemProducaoRepository.findAll();
+        List<OrdemProducao> op =  ordemProducaoRepository.findAll();
+
+        if(op.isEmpty()){
+            throw new OrdemProducaoNotFoundException("Ordens de Produção não encontradas ");
+        }
+        return op;
     }
 
 
     public List<Lote> buscarLotesPorOrdemProducao(Long id) {
         OrdemProducao op = buscarPorId(id);
 
-        return op.getLotes().stream().toList();
+       List<Lote> lotes =  op.getLotes().stream().toList();
+
+       if(lotes.isEmpty()){
+           throw new NotFoundLoteException("Lotes não encontrados para essa ordem: " + id);
+       }
+
+       return lotes;
     }
 
 

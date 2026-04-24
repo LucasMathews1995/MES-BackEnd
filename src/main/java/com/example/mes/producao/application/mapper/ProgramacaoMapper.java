@@ -43,6 +43,7 @@ public class ProgramacaoMapper {
             entity.getStatus(),
             entity.getDataHoraProgramada(),
             entity.getQuantidadeConsumida(),
+            entity.getFila(),
             lote.getId(),
             lote.getNome(),
             equipamento.getId(),

@@ -46,7 +46,12 @@ public class EquipamentoService {
     }
 
     public List<Equipamento> buscarEquipamentos() {
-        return equipamentoRepository.findAll();
+      List<Equipamento> equipamentos =  equipamentoRepository.findAll();
+
+      if(equipamentos.isEmpty()){
+          throw new NotFoundEquipamentoException("Nenhum equipamento encontrado.");
+      }
+      return equipamentos;
 
     }
     //UPDATE
@@ -58,6 +63,8 @@ public class EquipamentoService {
 
         equipamento.setStatusEquipamento(StatusEquipamento.PARADO);
         equipamento.getProgramacao().clear();
+        equipamento.setDataParado(LocalDateTime.now());
+        equipamento.setAtivo(false);
 
         equipamentoRepository.save(equipamento);
     }
@@ -70,9 +77,23 @@ public class EquipamentoService {
 
         equipamento.setStatusEquipamento(StatusEquipamento.PARADO);
         equipamento.setDataParado(LocalDateTime.now());
+        equipamento.setAtivo(false);
 
 
         equipamentoRepository.save(equipamento);
+    }
+
+    @Transactional
+    public void ativarEquipamento(Long id) {
+
+        Equipamento equipamento = equipamentoRepository.findById(id).orElseThrow(() -> new NotFoundEquipamentoException("Nenhum equipamento encontrado."));
+        equipamento.setStatusEquipamento(StatusEquipamento.OPERANDO);
+        equipamento.setDataParado(null);
+        equipamento.setDataAtivacao(LocalDateTime.now());
+        equipamento.setAtivo(true);
+
+        equipamentoRepository.save(equipamento);
+
     }
 
     //DELETE
@@ -89,6 +110,8 @@ public class EquipamentoService {
         equipamentoRepository.delete(equipamento);
 
     }
+
+
 
 
 

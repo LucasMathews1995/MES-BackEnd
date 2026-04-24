@@ -30,11 +30,22 @@ public class LoteService {
         return  loteRepository.findById(id).orElseThrow(()-> new NotFoundLoteException("Nenhum lote foi encontrado com esse id "+ id));
     }
     public List<Lote> findAllLotes(){
-        return    loteRepository.findAll();
+        List<Lote> lotes =    loteRepository.findAll();
+
+        if(lotes.isEmpty()){
+            throw new NotFoundLoteException("Nenhum lote foi encontrado");
+        }
+        return lotes;
 
     }
     public List<Lote> buscarTodosSemOrdemProducao(){
-        return  loteRepository.findAll().stream().filter(it -> it.getOrdemProducao()==null).toList();
+        List<Lote> lotes = loteRepository.findAll().stream().filter(it -> it.getOrdemProducao()==null).toList();
+
+        if(lotes.isEmpty()){
+            throw new NotFoundLoteException("Nenhum lote foi encontrado");
+        }
+        return lotes;
+
     }
 
 
@@ -162,7 +173,8 @@ public class LoteService {
     private void validarTransicaoAbastecimento(StatusLote atual, StatusLote novo) {
 
         boolean permitida = switch (atual) {
-            case DESABASTECIDO -> novo == StatusLote.ABASTECIDO;
+            case DESABASTECIDO -> novo == StatusLote.PROGRAMADO;
+            case PROGRAMADO -> novo == StatusLote.ABASTECIDO;
             case ABASTECIDO ->  novo == StatusLote.PRODUZIDO ;
             case PRODUZIDO -> novo == StatusLote.APROVADO;
 

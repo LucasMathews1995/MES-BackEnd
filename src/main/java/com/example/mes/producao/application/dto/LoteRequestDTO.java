@@ -5,5 +5,5 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-public record LoteRequestDTO (@NotBlank Integer quantidadeDisponivel, @NotNull LocalDateTime dataCriacao,@NotBlank String descricao){
+public record LoteRequestDTO (@NotNull Integer quantidadeDisponivel, @NotNull LocalDateTime dataCriacao,@NotBlank String descricao){
 }

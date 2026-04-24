@@ -62,7 +62,7 @@ public class ProducaoFacade {
         Lote lote = loteService.buscarLotePorId(programacaoRequestDTO.loteId());
 
         if(programacaoService.existirProgamaPorLoteId(lote.getId())){
-            throw new NotProgramacaoValidException("Esse lote " + lote.getNome()+ "já possui programa");
+            throw new NotProgramacaoValidException("Esse lote " + lote.getNome()+ " já possui programa");
 
         }
         if (equipamento.getStatusEquipamento().equals(StatusEquipamento.PARADO)) {
