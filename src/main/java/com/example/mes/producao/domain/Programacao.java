@@ -55,6 +55,14 @@ public class Programacao {
     }
 
 
+    public Integer setFila(Integer novaFila) {
+        if (novaFila < 0) throw new IllegalArgumentException("Fila inválida");
+            this.fila = novaFila;
+            return this.fila;   
+    }
+
+
+
 }
 
 

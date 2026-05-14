@@ -36,16 +36,18 @@ public interface ProgramacaoRepository extends JpaRepository<Programacao, Long> 
             "JOIN p.lote l " +
             "JOIN l.ordemProducao op " +
             "WHERE p.equipamento.id = :equipamentoId")
-    List<ProgramacaoOrdemProducaoDTO> findProgramacaoByEquipamento(@Param("equipamentoId") Long equipamentoId);
+    List<ProgramacaoOrdemProducaoDTO> findProgramacaoByEquipamentoOrdem(@Param("equipamentoId") Long equipamentoId);
 
-    @Query("SELECT new com.example.mes.producao.application.dto.ProgramacaoOrdemProducaoDTO(" +
-            "p.id, p.dataHoraProgramada, p.fila, p.quantidadeConsumida, l.nome, p.status, op.numeroOP) " +
-            "FROM Programacao p " +
-            "JOIN p.lote l " +
-            "JOIN l.ordemProducao op " +
-            "WHERE p.status = 'CRIADA'")
-    List<ProgramacaoOrdemProducaoDTO> findProgramacoesCriadas(@Param("equipamentoId") Long equipamentoId);
-
-
+  @Query("SELECT new com.example.mes.producao.application.dto.ProgramacaoOrdemProducaoDTO(" +
+       "p.id, p.dataHoraProgramada, p.fila, p.quantidadeConsumida, l.nome, p.status, op.numeroOP) " +
+       "FROM Programacao p " +
+       "JOIN p.lote l " +
+       "JOIN l.ordemProducao op " +
+       "WHERE p.equipamento.id = :equipamentoId " + 
+       "AND p.status = :status")                    
+List<ProgramacaoOrdemProducaoDTO> findProgramacoesPorEquipamentoEStatusOrdem(
+        @Param("equipamentoId") Long equipamentoId,
+        @Param("status") StatusProgramacao status
+);
 
 }

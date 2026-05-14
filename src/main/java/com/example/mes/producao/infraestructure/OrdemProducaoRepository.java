@@ -18,8 +18,7 @@ public interface OrdemProducaoRepository extends JpaRepository<OrdemProducao,Lon
 
     @Modifying
     @Transactional
-    @Query(value = "DELETE  FROM tb_ordem_producao where status = 'FINALIZADA' LIMIT 500",
-            nativeQuery = true)
+   @Query(value = "DELETE FROM tb_ordem_producao WHERE id IN (SELECT id FROM tb_ordem_producao WHERE status = 'FINALIZADA' LIMIT 500)", nativeQuery = true)
     int deleteTop500Custom();
 
 

@@ -37,6 +37,9 @@ public class Equipamento {
     @OneToMany(mappedBy = "equipamento", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Programacao> programacao = new HashSet<>();
 
+    @OneToMany(mappedBy = "equipamento", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Rastreabilidade> rastreabilidade = new HashSet<>();
+
     @Column(nullable = false,  name= "ativo")
     private boolean isAtivo;
 
@@ -59,6 +62,31 @@ public class Equipamento {
         isAtivo = true;
     }
     public Equipamento(){
+
+    }
+
+    public void removerProgramacao(Programacao programacao) {
+
+        this.programacao.remove(programacao);
+        programacao.setEquipamento(null);
+
+
+    }
+    public void adicionarProgramacao(Programacao programacao) {
+        this.programacao.add(programacao);
+        programacao.setEquipamento(this);
+    }
+
+    public void adicionarRastreabilidade(Rastreabilidade rastreabilidade) {
+        this.rastreabilidade.add(rastreabilidade);
+        rastreabilidade.setEquipamento(this);
+    }
+
+     public void removerRastreabilidade(Rastreabilidade rastreabilidade) {
+
+        this.rastreabilidade.remove(rastreabilidade);
+        rastreabilidade.setEquipamento(null);
+
 
     }
 

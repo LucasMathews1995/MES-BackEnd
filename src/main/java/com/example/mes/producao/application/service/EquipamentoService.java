@@ -27,7 +27,7 @@ public class EquipamentoService {
     private final ProgramacaoService programacaoService;
 
 
-    //CREATE
+
     @Transactional
     public Equipamento criarEquipamento(EquipamentoRequestDTO dto) {
 
@@ -39,7 +39,7 @@ public class EquipamentoService {
        return equipamento;
     }
 
-    //GET
+
     public Equipamento buscarEquipamentoPorId(Long id) {
         return equipamentoRepository.findById(id).orElseThrow(()-> new NotFoundEquipamentoException("Nenhum equipamento encontrado."));
 
@@ -54,7 +54,7 @@ public class EquipamentoService {
       return equipamentos;
 
     }
-    //UPDATE
+ 
     @Transactional
     public void desativarEquipamento(Long id) {
 
@@ -96,7 +96,7 @@ public class EquipamentoService {
 
     }
 
-    //DELETE
+   
     @Transactional
     public void deletarEquipamento(Long id) {
         Equipamento equipamento = equipamentoRepository.findById(id).orElseThrow(() -> new NotFoundEquipamentoException("Nenhum equipamento encontrado."));

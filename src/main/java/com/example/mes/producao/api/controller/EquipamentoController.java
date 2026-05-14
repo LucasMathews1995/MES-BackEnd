@@ -32,13 +32,14 @@ public class EquipamentoController {
 
 
     @PostMapping("/salvar")
+    @RolesAllowed({"Manager", "Administrator"})
     public ResponseEntity<EquipamentoResponseDTO> criarEquipamento(@Valid @RequestBody EquipamentoRequestDTO equipamentoRequestDTO){
         Equipamento equipamento = service.criarEquipamento(equipamentoRequestDTO);
         return ResponseEntity.ok(mapper.toDTO(equipamento));
 
     }
+
     @GetMapping
-    @RolesAllowed("Manager")
     public ResponseEntity<List<EquipamentoResponseDTO>> buscarEquipamentos(){
        List<Equipamento> equipamento =  service.buscarEquipamentos();
      List<EquipamentoResponseDTO> dto =   equipamento.stream().sorted(Comparator.comparing(Equipamento::getNome)).map(mapper::toDTO).toList();
@@ -56,13 +57,16 @@ public class EquipamentoController {
 
 
     @DeleteMapping("/{id}/remover")
+    @RolesAllowed({"Manager", "Administrator"})
     public ResponseEntity<Void> removerEquipamento(@PathVariable Long id){
 
          producaoFacade.deletarEquipamentoComValidacao(id);
          return ResponseEntity.noContent().build();
 
     }
+
     @PatchMapping("{id}/desativar")
+     @RolesAllowed("Manager")
     public ResponseEntity<Void> desativarEquipamento(@PathVariable Long id){
 
         service.desativarEquipamento(id);
@@ -70,6 +74,7 @@ public class EquipamentoController {
 
     }
     @PatchMapping("{id}/parar-equipamento")
+     @RolesAllowed({"Supervisor","Manager", "Administrator"})
     public ResponseEntity<Void> pararEquipamento(@PathVariable Long id){
         service.pararEquipamento(id);
         return ResponseEntity.noContent().build();
@@ -77,6 +82,7 @@ public class EquipamentoController {
     }
 
     @PatchMapping("{id}/ativar_equipamento")
+@RolesAllowed({"Manager", "Administrator"})
     public ResponseEntity<Void> ativarEquipamento(@PathVariable Long id){
         service.ativarEquipamento(id);
         return ResponseEntity.noContent().build();

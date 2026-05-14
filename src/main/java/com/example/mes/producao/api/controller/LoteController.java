@@ -6,6 +6,8 @@ import com.example.mes.producao.application.facade.ProducaoFacade;
 import com.example.mes.producao.application.mapper.LoteMapper;
 import com.example.mes.producao.application.service.LoteService;
 import com.example.mes.producao.domain.Lote;
+
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,12 +30,14 @@ public class LoteController {
 
 
     @PostMapping("/save")
+    @RolesAllowed({"Manager", "Administrator"})
     public ResponseEntity<LoteResponseDTO> criarLote(@RequestBody @Valid LoteRequestDTO loteRequestDTO){
         Lote response = loteService.criarLote(loteRequestDTO);
         LoteResponseDTO dto =   loteMapper.toDTO(response);
 
         return  new ResponseEntity<>(dto, HttpStatus.OK);
     }
+
     @GetMapping
     public ResponseEntity<List<LoteResponseDTO>> buscarTodos(){
         List<LoteResponseDTO> dto  = loteService.findAllLotes().stream().map(loteMapper::toDTO).toList();
@@ -45,13 +49,18 @@ public class LoteController {
         LoteResponseDTO dto = loteMapper.toDTO(loteService.buscarLotePorId(id));
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
+
+
     @GetMapping("/sem-op")
     public ResponseEntity<List<LoteResponseDTO>> buscarTodosLotesSemOrdemProducao(){
         List<Lote> lotes =loteService.buscarTodosSemOrdemProducao();
        List<LoteResponseDTO> response = lotes.stream().map(loteMapper::toDTO).toList();
        return  new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
     @PatchMapping("/{id}/desabastecer")
+    @RolesAllowed({"Lider", "Manager", "Administrator"})
     public ResponseEntity<Void> desabastecerPorId(@PathVariable Long id){
         producaoFacade.desabastecerLote(id);
 
@@ -60,6 +69,7 @@ public class LoteController {
     }
 
     @DeleteMapping("/{id}")
+    @RolesAllowed({"Manager", "Administrator"})
     public ResponseEntity<Void> deletarLote(@PathVariable Long id){
 
         loteService.excluirLote(id);

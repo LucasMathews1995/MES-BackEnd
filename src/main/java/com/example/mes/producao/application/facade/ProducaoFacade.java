@@ -23,19 +23,26 @@ public class ProducaoFacade {
         private final ProgramacaoService programacaoService;
         private final Map<StatusProgramacao, MudancaStatusStrategy> estrategias = new EnumMap<>(StatusProgramacao.class);
         private final ProgramacaoMapper programacaoMapper;
+        private final RastreabilidadeService rastreabilidadeService;
 
 
 
     public ProducaoFacade(List<MudancaStatusStrategy> listaEstrategias, LoteService loteService, OrdemProducaoService ordemService,
-                          EquipamentoService equipamentoService, ProgramacaoService programacaoService, ProgramacaoMapper programacaoMapper ){
+                          EquipamentoService equipamentoService, ProgramacaoService programacaoService, ProgramacaoMapper programacaoMapper, RastreabilidadeService rastreabilidadeService) {
+
+
         this.loteService = loteService;
         this.programacaoMapper = programacaoMapper;
         this.programacaoService = programacaoService;
         this.equipamentoService = equipamentoService;
         this.ordemService = ordemService;
+        this.rastreabilidadeService = rastreabilidadeService;
      for (MudancaStatusStrategy estrategia : listaEstrategias) {
         this.estrategias.put(estrategia.getStatusAlvo(), estrategia);
-    }}
+    }
+    
+
+}
 
 
     @Transactional
@@ -43,14 +50,8 @@ public class ProducaoFacade {
 
        Lote lote =  loteService.buscarLotePorId(idLote);
 
-        if(lote.getOrdemProducao()!= null ){
-            throw new AlreadyExistOrdemProducaoException("Esse lote "+ lote.getNome() + " já possui uma ordem de produção , não pode vinculá-lo " );
-        }
-
-        OrdemProducao ordem = ordemService.buscarPorId(idProd);
-       ordem.addLote(lote);
-
-        return ordem;
+        
+        return ordemService.vincularLote(idProd, lote);
     }
 
 
@@ -65,8 +66,12 @@ public class ProducaoFacade {
             throw new NotProgramacaoValidException("Esse lote " + lote.getNome()+ " já possui programa");
 
         }
-        if (equipamento.getStatusEquipamento().equals(StatusEquipamento.PARADO)) {
+        if (equipamento.getStatusEquipamento() == StatusEquipamento.PARADO) {
             throw new NotProgramacaoValidException("Não é possível programar: O equipamento está parado.");
+        }
+        if(lote.getOrdemProducao()== null){
+            throw new NotProgramacaoValidException("O lote " + lote.getNome() + " não possui ordem de produção, portanto não pode ser programado");
+
         }
 
         Programacao programacao = programacaoMapper.toEntity(lote,equipamento,programacaoRequestDTO);
@@ -75,12 +80,17 @@ public class ProducaoFacade {
         int proximaFila = (ultimaFila != null ? ultimaFila : 0) + 1;
 
         programacao.setFila(proximaFila);
+        
+       
+        programacao.setStatus(StatusProgramacao.CRIADO);
+
         lote.consumirQuantidade(programacaoRequestDTO.quantidadeConsumida());
 
 
         lote.adicionarProgramacao(programacao);
 
         programacaoService.salvarProgramacao(programacao);
+       
 
 
         return     programacaoMapper.toDTODetalhe(programacao,lote,equipamento);
@@ -93,7 +103,7 @@ public class ProducaoFacade {
         Lote lote = loteService.buscarLotePorId(idLote);
         Programacao programacao  =   loteService.buscarUltimaProgramacaoPorLote(idLote);
 
-        if (!lote.getStatus().equals(StatusLote.ABASTECIDO)) {
+        if (lote.getStatus() != StatusLote.ABASTECIDO) {
             throw new AbastecimentoLoteException("Lote " + lote.getNome() + " não está abastecido");
         }
         lote.setStatus(StatusLote.DESABASTECIDO);
@@ -125,6 +135,9 @@ public class ProducaoFacade {
 
         estrategia.finalizarProgramacao(programacao, programacaoService);
         programacaoService.salvarProgramacao(programacao);
+        estrategia.registrarRastreabilidade(lote, equipamento, rastreabilidadeService);
+
+        
 
         return programacaoMapper.toDTOResumo(programacao, lote, equipamento);
     }
@@ -151,6 +164,23 @@ public class ProducaoFacade {
 
 
         equipamentoService.deletarEquipamento(equipamentoId);
+    }
+
+    
+    public List<ProgramacaoOrdemProducaoDTO> buscarProgramacoesPorEquipamentoAndStatus(Long equipamentoId, StatusProgramacao status) {
+        
+        List<ProgramacaoOrdemProducaoDTO> programacao = programacaoService.buscarProgramacoesPorEquipamentoIdEStatus(equipamentoId, status);
+        Equipamento equipamento = equipamentoService.buscarEquipamentoPorId(equipamentoId);
+    
+
+        
+        if(equipamento.getStatusEquipamento() == StatusEquipamento.PARADO){
+            throw new NotFoundEquipamentoException("Nenhum equipamento encontrado com esse id" + equipamentoId);
+        }
+        
+
+        return programacao;
+
     }
 
 }

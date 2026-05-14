@@ -8,6 +8,8 @@ import com.example.mes.producao.application.mapper.OrdemProducaoMapper;
 import com.example.mes.producao.application.service.OrdemProducaoService;
 import com.example.mes.producao.domain.Lote;
 import com.example.mes.producao.domain.OrdemProducao;
+
+import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,7 @@ public class OrdemProducaoController {
 
 
     @PostMapping("/save")
+    @RolesAllowed({"Manager", "Administrator"})
     public ResponseEntity<OrdemProducaoResponseDTO> createOrdemProducao(){
         OrdemProducao ordem=  ordemProducaoService.createOrdemProducao();
         OrdemProducaoResponseDTO dto = ordemProducaoMapper.toDTO(ordem);
@@ -58,6 +61,7 @@ public class OrdemProducaoController {
     }
 
     @PatchMapping("/{idLote}/{idProd}")
+    @RolesAllowed({"Manager", "Administrator","Programador"})
     public ResponseEntity<OrdemProducaoResponseDTO> boundOrdemProducao(@PathVariable Long idLote , @PathVariable Long idProd){
         OrdemProducao op = producaoFacade.vincularOrdemProducaoAoLote(idLote, idProd);
         OrdemProducaoResponseDTO dto = ordemProducaoMapper.toDTO(op);
@@ -66,12 +70,14 @@ public class OrdemProducaoController {
     }
 
     @DeleteMapping("/{idProd}")
+    @RolesAllowed({"Manager", "Administrator","Programador"})
     public ResponseEntity<OrdemProducaoResponseDTO> removeLote(@PathVariable Long idProd){
         ordemProducaoService.deletarOrdemProducao(idProd);
       return ResponseEntity.noContent().build();
     }
     @DeleteMapping("{idLote}/{idProd}")
-    public ResponseEntity<Void> removeLote(@PathVariable Long idLote, @PathVariable Long idProd){
+    @RolesAllowed({"Manager", "Administrator","Programador"})
+    public ResponseEntity<Void> desvinculo(@PathVariable Long idLote, @PathVariable Long idProd){
         ordemProducaoService.desvincularLote(idLote,idProd);
 
         return ResponseEntity.ok().build();
