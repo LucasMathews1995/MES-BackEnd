@@ -1,7 +1,9 @@
 package com.example.mes.producao.domain;
 
+import com.example.mes.producao.api.exception.AbastecimentoLoteException;
 import com.example.mes.producao.api.exception.LoteAbastecidoException;
 import com.example.mes.producao.api.exception.NotFoundLoteException;
+import com.example.mes.producao.api.exception.OPNotValidException;
 import com.example.mes.producao.api.exception.QuantidadeNotEnoughException;
 import jakarta.persistence.*;
 import lombok.*;
@@ -60,9 +62,7 @@ public class Lote {
     }
 
     public void retornarQuantidade(Integer quantidade) {
-        if (this.quantidadeDisponivel < quantidade) {
-            throw new QuantidadeNotEnoughException("Quantidade maior que a disponível");
-        }
+
         this.quantidadeDisponivel += quantidade;
     }
 
@@ -104,31 +104,93 @@ public class Lote {
         retornarQuantidade(quantidade);
     }
 
-    public void retirarDeQualidade() {
+    public void retirarDeQualidade(OrdemProducao ordemProducao) {
         if (this.status != StatusLote.QUALIDADE) {
-            throw new IllegalStateException(
+            throw new LoteAbastecidoException(
                     "O lote não pode ser retirado em qualidade pois seu status é de : " + this.status);
         }
 
-        this.status = StatusLote.DESABASTECIDO;
-        
+        if (ordemProducao.getStatus() != StatusOP.RETRABALHO) {
+            throw new OPNotValidException(
+                    "O lote só pode ser retirado em qualidade para uma ordem de produção que esteja em retrabalho. Status atual da OP: "
+                            + ordemProducao.getStatus());
+        }
+
+        this.ordemProducao = ordemProducao;
+
+        this.status = StatusLote.PROGRAMADO;
+
     }
 
     public void validarSePodeSerExcluido() {
-   
-    if (this.status != StatusLote.DESABASTECIDO) {
-        throw new NotFoundLoteException(
-            "Para excluir, o lote precisa estar desabastecido. Status atual: " + this.status);
+
+        if (this.status != StatusLote.DESABASTECIDO) {
+            throw new NotFoundLoteException(
+                    "Para excluir, o lote precisa estar desabastecido. Status atual: " + this.status);
+        }
+
+        boolean possuiProgramacaoAtiva = this.programacao.stream()
+                .anyMatch(it -> it.getStatus().equals(StatusProgramacao.PROGRAMADO)
+                        || it.getStatus().equals(StatusProgramacao.CRIADO));
+
+        if (possuiProgramacaoAtiva) {
+            throw new LoteAbastecidoException("Lote não pode ser excluído pois possui programações ativas.");
+        }
     }
 
-   
-    boolean possuiProgramacaoAtiva = this.programacao.stream()
-            .anyMatch(it -> it.getStatus().equals(StatusProgramacao.PROGRAMADO) 
-                         || it.getStatus().equals(StatusProgramacao.CRIADO));
+    public void programarLote() {
+        validarTransicao(this.status, StatusLote.PROGRAMADO);
 
-    if (possuiProgramacaoAtiva) {
-        throw new LoteAbastecidoException("Lote não pode ser excluído pois possui programações ativas.");
+        setStatus(StatusLote.PROGRAMADO);
     }
-}
-}
 
+    public void vincularAOrdem() {
+
+        if (this.status != StatusLote.DESABASTECIDO) {
+            throw new AbastecimentoLoteException(
+                    "Não é permitido vincular o lote " + this.nome
+                            + " à ordem pois ele não está DESABASTECIDO. Status atual: " + this.status);
+        }
+
+        this.status = StatusLote.PROGRAMADO;
+    }
+
+    public void abastecerLote() {
+        validarTransicao(this.status, StatusLote.ABASTECIDO);
+
+        setStatus(StatusLote.ABASTECIDO);
+    }
+    public void desabastecerLote() {
+        validarTransicao(this.status, StatusLote.DESABASTECIDO);
+
+        setStatus(StatusLote.DESABASTECIDO);
+    }
+    public void produzirLote() {
+        validarTransicao(this.status, StatusLote.PRODUZIDO);
+
+        setStatus(StatusLote.PRODUZIDO);
+    }
+    public void aprovarLote() {
+        validarTransicao(this.status, StatusLote.APROVADO);
+
+        setStatus(StatusLote.APROVADO);
+    }
+
+    private void validarTransicao(StatusLote atual, StatusLote novo) {
+
+        boolean permitida = switch (atual) {
+            case DESABASTECIDO -> novo == StatusLote.PROGRAMADO || novo == StatusLote.QUALIDADE;
+            case PROGRAMADO ->
+                novo == StatusLote.ABASTECIDO || novo == StatusLote.QUALIDADE || novo == StatusLote.DESABASTECIDO;
+            case ABASTECIDO -> novo == StatusLote.PRODUZIDO || novo == StatusLote.PROGRAMADO;
+            case PRODUZIDO -> novo == StatusLote.APROVADO;
+
+            default -> false;
+        };
+
+        if (!permitida) {
+            throw new AbastecimentoLoteException("Transição não permitida: " + atual + " -> " + novo);
+        }
+    }
+
+}

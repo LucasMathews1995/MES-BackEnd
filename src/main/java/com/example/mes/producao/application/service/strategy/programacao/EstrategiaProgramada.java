@@ -22,18 +22,18 @@ public class EstrategiaProgramada implements MudancaStatusStrategy {
     }
 
     @Override
-    public Lote processarLote(LoteService loteService, ProgramacaoRequestDTO dto) {
-        return loteService.programarLote(dto.loteId());
+    public Lote processarLote(LoteService loteService, Long LoteId) {
+        return loteService.programarLote(LoteId);
     }
 
     @Override
-    public void finalizarProgramacao(Programacao programacao, ProgramacaoService programacaoService) {
+    public void finalizarProgramacao(Programacao programacao) {
         programacao.setStatus(StatusProgramacao.PROGRAMADO);
     }
 
     @Override
     public boolean permiteTransicao(StatusProgramacao statusAtual) {
-        return statusAtual == StatusProgramacao.CRIADO;
+        return statusAtual == StatusProgramacao.CRIADO || statusAtual == StatusProgramacao.QUALIDADE;
     }
 
     @Override

@@ -9,8 +9,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.ObjectInputFilter.Status;
 import java.util.List;
-import java.util.Random;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -72,9 +73,8 @@ public class LoteService {
     public Lote abastecerLote(Long id) {
         Lote lote = buscarLotePorId(id);
 
-        validarTransicaoAbastecimento(lote.getStatus(), StatusLote.ABASTECIDO);
 
-        lote.setStatus(StatusLote.ABASTECIDO);
+        lote.abastecerLote();
 
         return loteRepository.save(lote);
     }
@@ -83,19 +83,28 @@ public class LoteService {
     public Lote programarLote(Long id) {
         Lote lote = buscarLotePorId(id);
 
-        validarTransicaoAbastecimento(lote.getStatus(), StatusLote.PROGRAMADO);
-
-        lote.setStatus(StatusLote.PROGRAMADO);
+        lote.programarLote();
 
         return loteRepository.save(lote);
     }
+
+      @Transactional
+    public Lote desabastecerLote(Long id) {
+        Lote lote = buscarLotePorId(id);
+
+      
+
+        lote.desabastecerLote();
+
+        return loteRepository.save(lote);
+    }
+
 
     @Transactional
     public Lote produzirLote(Long id) {
         Lote lote = buscarLotePorId(id);
 
-        validarTransicaoAbastecimento(lote.getStatus(), StatusLote.PRODUZIDO);
-        lote.setStatus(StatusLote.PRODUZIDO);
+        lote.produzirLote();
 
         return loteRepository.save(lote);
     }
@@ -104,18 +113,18 @@ public class LoteService {
     public Lote aprovarLote(Long id) {
         Lote lote = buscarLotePorId(id);
 
-        validarTransicaoAbastecimento(lote.getStatus(), StatusLote.APROVADO);
-        lote.setStatus(StatusLote.APROVADO);
+        lote.aprovarLote();
 
         return loteRepository.save(lote);
 
     }
 
     @Transactional
-    public Lote colocarLoteEmQualidade(Long id, Integer quantidade) {
+    public Lote colocarLoteEmQualidade(Long id) {
 
         Lote lote = buscarLotePorId(id);
-        lote.enviarParaQualidade(quantidade);
+        Programacao programacao = buscarUltimaProgramacaoPorLote(id);
+        lote.enviarParaQualidade(programacao.getQuantidadeConsumida());
 
         OrdemProducao ordem = lote.getOrdemProducao();
 
@@ -126,10 +135,10 @@ public class LoteService {
     }
 
     @Transactional
-    public void retirarLoteEmQualidade(Long id) {
+    public void retirarLoteEmQualidade(Long id,OrdemProducao ordemProducao ) {
         Lote lote = buscarLotePorId(id);
 
-        lote.retirarDeQualidade();
+        lote.retirarDeQualidade(ordemProducao);
 
         loteRepository.save(lote);
 
@@ -145,21 +154,6 @@ public class LoteService {
 
     }
 
-    private void validarTransicaoAbastecimento(StatusLote atual, StatusLote novo) {
-
-        boolean permitida = switch (atual) {
-            case DESABASTECIDO -> novo == StatusLote.PROGRAMADO;
-            case PROGRAMADO -> novo == StatusLote.ABASTECIDO;
-            case ABASTECIDO -> novo == StatusLote.PRODUZIDO;
-            case PRODUZIDO -> novo == StatusLote.APROVADO;
-
-            default -> false;
-        };
-
-        if (!permitida) {
-            throw new AbastecimentoLoteException("Transição não permitida: " + atual + " -> " + novo);
-        }
-    }
 
     private String gerarLoteNome() {
 

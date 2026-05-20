@@ -43,14 +43,43 @@ public class Rastreabilidade {
     
     private String evento;
 
-    public Rastreabilidade(Lote lote, Equipamento equipamento, LocalDateTime dataHoraEntrada, StatusRastreabilidade status, String evento) {
+    private Rastreabilidade(Lote lote, Equipamento equipamento, LocalDateTime dataHoraEntrada, StatusRastreabilidade status, String evento) {
         this.lote = lote;
         this.equipamento = equipamento;
         this.dataHoraEntrada = dataHoraEntrada;
         this.status = status;
         this.evento = evento;
     }
-    public Rastreabilidade() {
+
+    public static Rastreabilidade alterRastreabilidade(Lote lote, Equipamento equipamento,StatusRastreabilidade status) {
+        LocalDateTime agora = LocalDateTime.now();
+
+        String descricaoGerada = String.format("O lote %s foi %s no equipamento %s em %s",
+                lote.getNome(), status, equipamento.getNome(), agora.toString());
+
+        return new Rastreabilidade(
+                lote, 
+                equipamento, 
+                agora, 
+                status, 
+                descricaoGerada
+        );
+    }
+
+
+    public static Rastreabilidade criarEvento(Lote lote, Equipamento equipamento, 
+                                              StatusRastreabilidade status, String evento) {
+     
+        return new Rastreabilidade(lote, equipamento, LocalDateTime.now(), status, evento);
+    }
+
+
+
+    protected Rastreabilidade() {
+    }
+
+    public void registrarSaida() {
+        this.dataHoraSaida = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -89,9 +118,6 @@ public class Rastreabilidade {
         return dataHoraSaida;
     }
 
-    public void setDataHoraSaida(LocalDateTime dataHoraSaida) {
-        this.dataHoraSaida = dataHoraSaida;
-    }
 
     public StatusRastreabilidade getStatus() {
         return status;

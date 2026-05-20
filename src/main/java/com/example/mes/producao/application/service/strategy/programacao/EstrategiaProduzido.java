@@ -22,12 +22,12 @@ public class EstrategiaProduzido implements MudancaStatusStrategy {
     }
 
     @Override
-    public Lote processarLote(LoteService loteService, ProgramacaoRequestDTO dto) {
-        return loteService.produzirLote(dto.loteId());
+    public Lote processarLote(LoteService loteService, Long LoteId) {
+        return loteService.produzirLote(LoteId);
     }
 
     @Override
-    public void finalizarProgramacao(Programacao programacao, ProgramacaoService programacaoService) {
+    public void finalizarProgramacao(Programacao programacao) {
         programacao.setStatus(StatusProgramacao.PRODUZIDO);
     }
 

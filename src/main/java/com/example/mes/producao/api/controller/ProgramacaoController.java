@@ -5,6 +5,7 @@ import com.example.mes.producao.application.dto.ProgramacaoOrdemProducaoDTO;
 import com.example.mes.producao.application.dto.ProgramacaoRequestDTO;
 import com.example.mes.producao.application.dto.ProgramacaoResponseDTO;
 import com.example.mes.producao.application.dto.ProgramacaoResumoResponseDTO;
+import com.example.mes.producao.application.dto.RetirarQualidadeDTO;
 import com.example.mes.producao.application.facade.ProducaoFacade;
 import com.example.mes.producao.application.mapper.ProgramacaoMapper;
 import com.example.mes.producao.application.service.ProgramacaoService;
@@ -102,8 +103,8 @@ public class ProgramacaoController {
   
     @PatchMapping("/{id}/programar")
     @RolesAllowed({"Manager", "Administrator","Programador"})
-    public ResponseEntity<ProgramacaoResumoResponseDTO> programarProgramacao(@PathVariable Long id, @RequestBody @Valid ProgramacaoRequestDTO programacaoRequestDTO) {
-        ProgramacaoResumoResponseDTO response = producaoFacade.alterarStatus(id, programacaoRequestDTO, StatusProgramacao.PROGRAMADO);
+    public ResponseEntity<ProgramacaoResumoResponseDTO> programarProgramacao(@PathVariable Long id) {
+        ProgramacaoResumoResponseDTO response = producaoFacade.alterarStatus(id,  StatusProgramacao.PROGRAMADO);
 
         return ResponseEntity.ok().body(response);
     }
@@ -111,26 +112,26 @@ public class ProgramacaoController {
 
     @PatchMapping("/{id}/abastecer")
     @RolesAllowed({"Manager", "Administrator","Lider"})
-    public ResponseEntity<ProgramacaoResumoResponseDTO> abastecerProgramacao(@PathVariable Long id, @RequestBody @Valid ProgramacaoRequestDTO programacaoRequestDTO) {
-        ProgramacaoResumoResponseDTO response = producaoFacade.alterarStatus(id, programacaoRequestDTO, StatusProgramacao.ABASTECIDO);
+    public ResponseEntity<ProgramacaoResumoResponseDTO> abastecerProgramacao(@PathVariable Long id) {
+        ProgramacaoResumoResponseDTO response = producaoFacade.alterarStatus(id,  StatusProgramacao.ABASTECIDO);
 
         return ResponseEntity.ok().body(response);
     }
 
     @PatchMapping("/{id}/produzir")
     @RolesAllowed({"Manager", "Administrator","Lider"})
-    public ResponseEntity<ProgramacaoResumoResponseDTO> produzirPrograma(@PathVariable Long id, @RequestBody @Valid ProgramacaoRequestDTO programacaoRequestDTO) {
+    public ResponseEntity<ProgramacaoResumoResponseDTO> produzirPrograma(@PathVariable Long id) {
 
-        ProgramacaoResumoResponseDTO response = producaoFacade.alterarStatus(id, programacaoRequestDTO,StatusProgramacao.PRODUZIDO);
+        ProgramacaoResumoResponseDTO response = producaoFacade.alterarStatus(id, StatusProgramacao.PRODUZIDO);
 
         return ResponseEntity.ok().body(response);
     }
 
     @PatchMapping("/{id}/aprovar")
     @RolesAllowed({"Manager", "Administrator","Lider","Programador"})
-    public ResponseEntity<ProgramacaoResumoResponseDTO> aprovarPrograma(@PathVariable Long id, @RequestBody @Valid ProgramacaoRequestDTO programacaoRequestDTO) {
+    public ResponseEntity<ProgramacaoResumoResponseDTO> aprovarPrograma(@PathVariable Long id  ) {
 
-        ProgramacaoResumoResponseDTO response = producaoFacade.alterarStatus(id, programacaoRequestDTO,StatusProgramacao.APROVADO);
+        ProgramacaoResumoResponseDTO response = producaoFacade.alterarStatus(id, StatusProgramacao.APROVADO);
 
 
         return ResponseEntity.ok().body(response);
@@ -138,19 +139,19 @@ public class ProgramacaoController {
 
     @PatchMapping("/{id}/colocar-qualidade")
     @RolesAllowed({"Manager", "Administrator","Lider","Programador"})
-    public ResponseEntity<Void> colocarEmQualidade(@PathVariable Long id, @RequestBody @Valid ProgramacaoRequestDTO programacaoRequestDTO) {
+    public ResponseEntity<Void> colocarEmQualidade(@PathVariable Long id) {
 
-        producaoFacade.alterarStatus(id, programacaoRequestDTO,StatusProgramacao.QUALIDADE);
+        producaoFacade.alterarStatus(id, StatusProgramacao.QUALIDADE);
 
 
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/retirar-qualidade")
+    @PatchMapping("/{id}/retirar-qualidade")
     @RolesAllowed({"Manager", "Administrator","Lider","Programador"})
-    public ResponseEntity<ProgramacaoResumoResponseDTO> retirarEmQualidade(@PathVariable Long id,@RequestBody @Valid ProgramacaoRequestDTO programacaoRequestDTO) {
+    public ResponseEntity<ProgramacaoResumoResponseDTO> retirarEmQualidade(@PathVariable Long id, @Valid @RequestBody RetirarQualidadeDTO requestDTO) {
 
-        ProgramacaoResumoResponseDTO response = producaoFacade.retirarDeQualidadeProgramacao(id,programacaoRequestDTO);
+        ProgramacaoResumoResponseDTO response = producaoFacade.retirarDeQualidadeProgramacao(id,requestDTO);
 
 
         return ResponseEntity.ok().body(response);

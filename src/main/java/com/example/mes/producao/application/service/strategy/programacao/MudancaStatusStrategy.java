@@ -13,9 +13,9 @@ public interface MudancaStatusStrategy {
 
     StatusProgramacao getStatusAlvo();
 
-    Lote processarLote(LoteService loteService, ProgramacaoRequestDTO dto);
+    Lote processarLote(LoteService loteService, Long dto);
 
-    void finalizarProgramacao(Programacao programacao, ProgramacaoService programacaoService);
+    void finalizarProgramacao(Programacao programacao);
 
     boolean permiteTransicao(StatusProgramacao statusAtual);
     

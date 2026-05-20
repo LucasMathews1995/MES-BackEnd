@@ -49,5 +49,6 @@ List<ProgramacaoOrdemProducaoDTO> findProgramacoesPorEquipamentoEStatusOrdem(
         @Param("equipamentoId") Long equipamentoId,
         @Param("status") StatusProgramacao status
 );
+boolean existsByEquipamentoIdAndStatus(Long equipamentoId, StatusProgramacao status);
 
 }

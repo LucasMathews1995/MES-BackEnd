@@ -82,5 +82,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> RastreabilidadeNotFoundException(RastreabilidadeNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+    
+    @ExceptionHandler(OPNotValidException.class)
+    public ResponseEntity<String> OPNotValidException(OPNotValidException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 
 }

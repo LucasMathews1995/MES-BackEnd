@@ -23,16 +23,16 @@ public class EstrategiaAprovado implements MudancaStatusStrategy {
     }
 
     @Override
-    public Lote processarLote(LoteService loteService, ProgramacaoRequestDTO dto) {
+    public Lote processarLote(LoteService loteService, Long LoteId) {
 
-        return loteService.aprovarLote(dto.loteId());
+        return loteService.aprovarLote(LoteId);
     }
 
     @Override
-    public void finalizarProgramacao(Programacao programacao, ProgramacaoService programacaoService) {
+    public void finalizarProgramacao(Programacao programacao ) {
         programacao.setStatus(StatusProgramacao.APROVADO);
         programacao.getLote().setOrdemProducao(null);
-       programacaoService.deletarProgramacaoPorId(programacao.getId());
+       
     }
 
     @Override

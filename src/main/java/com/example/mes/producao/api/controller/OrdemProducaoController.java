@@ -1,6 +1,7 @@
 package com.example.mes.producao.api.controller;
 
 import com.example.mes.producao.application.dto.LoteResponseDTO;
+import com.example.mes.producao.application.dto.OrdemProducaoRequestDTO;
 import com.example.mes.producao.application.dto.OrdemProducaoResponseDTO;
 import com.example.mes.producao.application.facade.ProducaoFacade;
 import com.example.mes.producao.application.mapper.LoteMapper;
@@ -8,8 +9,10 @@ import com.example.mes.producao.application.mapper.OrdemProducaoMapper;
 import com.example.mes.producao.application.service.OrdemProducaoService;
 import com.example.mes.producao.domain.Lote;
 import com.example.mes.producao.domain.OrdemProducao;
+import com.example.mes.producao.domain.StatusOP;
 
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,11 +34,13 @@ public class OrdemProducaoController {
 
     @PostMapping("/save")
     @RolesAllowed({"Manager", "Administrator"})
-    public ResponseEntity<OrdemProducaoResponseDTO> createOrdemProducao(){
-        OrdemProducao ordem=  ordemProducaoService.createOrdemProducao();
+    public ResponseEntity<OrdemProducaoResponseDTO> createOrdemProducao(@RequestBody  @Valid OrdemProducaoRequestDTO requestDTO){
+        OrdemProducao ordem=  ordemProducaoService.createOrdemProducao(requestDTO.status());
         OrdemProducaoResponseDTO dto = ordemProducaoMapper.toDTO(ordem);
     return ResponseEntity.ok().body(dto);
     }
+   
+
 
     @GetMapping
     public ResponseEntity<List<OrdemProducaoResponseDTO>> getAllOrdemProducao(){

@@ -23,12 +23,12 @@ public class EstrategiaAbastecido implements MudancaStatusStrategy {
     }
 
     @Override
-    public Lote processarLote(LoteService loteService, ProgramacaoRequestDTO dto) {
-        return loteService.abastecerLote(dto.loteId());
+    public Lote processarLote(LoteService loteService, Long LoteId) {
+        return loteService.abastecerLote(LoteId);
     }
 
     @Override
-    public void finalizarProgramacao(Programacao programacao, ProgramacaoService programacaoService) {
+    public void finalizarProgramacao(Programacao programacao ) {
         programacao.setStatus(StatusProgramacao.ABASTECIDO);
     }
 
@@ -44,7 +44,7 @@ public class EstrategiaAbastecido implements MudancaStatusStrategy {
         String evento = "O lote " + lote.getNome() + "foi abastecido no equipamento " + equipamento.getNome() + " em "
                 + LocalDateTime.now();
 
-        rastreabilidadeService.registrarEventoDeAbastecimento(lote, equipamento, StatusRastreabilidade.ABASTECIDO,
+        rastreabilidadeService.registrarEventoRastreabilidade(lote, equipamento, StatusRastreabilidade.ABASTECIDO,
                 evento);
     }
 }

@@ -1,19 +1,19 @@
 package com.example.mes.producao.application.service;
 
 import com.example.mes.producao.api.exception.NotFoundLoteException;
-import com.example.mes.producao.api.exception.OrdemAndLoteException;
 import com.example.mes.producao.api.exception.OrdemProducaoNotFoundException;
 import com.example.mes.producao.api.exception.OrdemProducaoStatusException;
 import com.example.mes.producao.domain.Lote;
 import com.example.mes.producao.domain.OrdemProducao;
-import com.example.mes.producao.domain.StatusLote;
+
 import com.example.mes.producao.domain.StatusOP;
 import com.example.mes.producao.infraestructure.OrdemProducaoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
-import java.util.Optional;
+
 import java.util.Random;
 
 @Service
@@ -36,7 +36,7 @@ public class OrdemProducaoService {
         }
         return op;
     }
-    
+
 
     public OrdemProducao vincularLote(Long idProd, Lote lote) {
         OrdemProducao ordem = buscarPorId(idProd);
@@ -47,8 +47,7 @@ public class OrdemProducaoService {
         }
 
         ordem.addLote(lote);
-        ordem.setStatus(StatusOP.PROCESSANDO);
-
+        
         return ordem;
     }
 
@@ -65,12 +64,18 @@ public class OrdemProducaoService {
     }
 
     @Transactional
-    public OrdemProducao createOrdemProducao() {
-        String numeroUnico = generateOrdemProducaoNome();
-        OrdemProducao novaOP = new OrdemProducao(numeroUnico);
+    public OrdemProducao createOrdemProducao(StatusOP status) {
+        String numeroOP = generateOrdemProducaoNome();
+        OrdemProducao novaOP = null;
+            
+        if(status == StatusOP.RETRABALHO){
+             novaOP = OrdemProducao.criarRetrabalho(numeroOP);
+        }else{
+         novaOP = OrdemProducao.criarNormal(numeroOP);}
 
         return ordemProducaoRepository.save(novaOP);
     }
+    
 
     @Transactional
     public void deletarOrdemProducao(Long idProd) {

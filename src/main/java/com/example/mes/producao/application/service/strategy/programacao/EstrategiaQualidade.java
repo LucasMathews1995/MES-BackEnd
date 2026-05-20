@@ -1,6 +1,5 @@
 package com.example.mes.producao.application.service.strategy.programacao;
 
-import com.example.mes.producao.application.dto.ProgramacaoRequestDTO;
 import com.example.mes.producao.application.service.LoteService;
 import com.example.mes.producao.application.service.ProgramacaoService;
 import com.example.mes.producao.application.service.RastreabilidadeService;
@@ -22,14 +21,13 @@ public class EstrategiaQualidade implements MudancaStatusStrategy{
     }
 
     @Override
-    public Lote processarLote(LoteService loteService, ProgramacaoRequestDTO dto) {
-     return   loteService.colocarLoteEmQualidade(dto.loteId(),dto.quantidadeConsumida());
+    public Lote processarLote(LoteService loteService, Long LoteId) {
+     return   loteService.colocarLoteEmQualidade(LoteId);
     }
 
     @Override
-    public void finalizarProgramacao(Programacao programacao, ProgramacaoService programacaoService) {
-        programacao.setStatus(StatusProgramacao.QUALIDADE);
-        programacaoService.deletarProgramacaoPorId(programacao.getId());
+    public void finalizarProgramacao(Programacao programacao ) {
+      programacao.colocarEmQualidade();
     }
 
     @Override
