@@ -55,7 +55,7 @@ public void registrarEventoRastreabilidade(Lote lote, Equipamento equipamento,
    public void criarRastreabilidadeParaProgramacao(Programacao programacao, Lote lote, Equipamento equipamento) {
 
   
-    Rastreabilidade rastreabilidade = Rastreabilidade.alterRastreabilidade(lote, equipamento,StatusRastreabilidade.CRIADO);
+    Rastreabilidade rastreabilidade = Rastreabilidade.alterarRastreabilidade(lote, equipamento,StatusRastreabilidade.CRIADO);
 
     rastreabilidadeRepository.save(rastreabilidade);
 }
@@ -107,6 +107,20 @@ public void registrarEventoRastreabilidade(Lote lote, Equipamento equipamento,
 
         return rastreabilidades.stream().map(r -> rastreabilidadeMapper.toDTO(r)).toList();
 
+    }
+
+
+
+
+
+    public void registrarRastreabilidadeEquipamento(Equipamento equipamento, String string) {
+        Rastreabilidade rastreabilidade = Rastreabilidade.criarEventoEquipamento(equipamento, string);
+        rastreabilidadeRepository.save(rastreabilidade);
+    }
+
+    public void registrarRastreabilidadeLote(Lote lote, Equipamento equipamento, String evento) {
+        Rastreabilidade rastreabilidade = Rastreabilidade.criarEventoLote(lote, equipamento, evento);
+        rastreabilidadeRepository.save(rastreabilidade);
     }
 
 }

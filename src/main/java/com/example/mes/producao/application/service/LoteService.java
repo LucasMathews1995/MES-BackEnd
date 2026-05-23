@@ -8,8 +8,6 @@ import com.example.mes.producao.infraestructure.LoteRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.io.ObjectInputFilter.Status;
 import java.util.List;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -87,18 +85,6 @@ public class LoteService {
 
         return loteRepository.save(lote);
     }
-
-      @Transactional
-    public Lote desabastecerLote(Long id) {
-        Lote lote = buscarLotePorId(id);
-
-      
-
-        lote.desabastecerLote();
-
-        return loteRepository.save(lote);
-    }
-
 
     @Transactional
     public Lote produzirLote(Long id) {

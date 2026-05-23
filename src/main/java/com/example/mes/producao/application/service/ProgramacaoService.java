@@ -17,8 +17,6 @@ import com.example.mes.producao.infraestructure.ProgramacaoRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.ObjectInputFilter.Status;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +43,7 @@ public class ProgramacaoService {
             throw new NotProgramacaoValidException("Esse lote  já possui programa");
 
         }
-        if (equipamento.getStatusEquipamento() == StatusEquipamento.PARADO) {
+        if (equipamento.getStatusEquipamento() == StatusEquipamento.PARADO || equipamento.isAtivo() == false) {
             throw new NotProgramacaoValidException("Não é possível programar: O equipamento está parado.");
         }
 
@@ -84,9 +82,23 @@ public class ProgramacaoService {
         return programacao;
     }
 
-    public boolean validarEquipamentoAndStatus(Long equipamentoId ) {
+    @Transactional
+    public void excluirProgramasDoEquipamentoParados(Long equipamentoId ) {
       
-      return  programacaoRepository.existsByEquipamentoIdAndStatus(equipamentoId, StatusProgramacao.ABASTECIDO);
+      boolean existeProgramas = programacaoRepository.existsByEquipamentoIdAndStatusIn(equipamentoId, Arrays.asList(StatusProgramacao.PROGRAMADO,StatusProgramacao.ABASTECIDO,StatusProgramacao.PRODUZIDO,StatusProgramacao.APROVADO));
+      if(existeProgramas){
+            throw new NotProgramacaoValidException(
+                    "Não é possível deletar o equipamento " + equipamentoId
+                            + " porque ele possui programações ativas.");
+      }
+      
+      List<Programacao> programacoes =  programacaoRepository.findAllByEquipamentoIdAndStatusIn(equipamentoId,Arrays.asList(StatusProgramacao.CRIADO, StatusProgramacao.QUALIDADE));
+
+      programacoes.forEach(programacao -> {
+            programacao.getLote().retornarQuantidade(programacao.getQuantidadeConsumida());
+            programacaoRepository.delete(programacao);
+        });
+        
          
      
     }

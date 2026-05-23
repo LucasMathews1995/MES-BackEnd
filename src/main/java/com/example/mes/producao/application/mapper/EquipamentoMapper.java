@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class EquipamentoMapper {
 
 
-    public Equipamento toEntity(EquipamentoRequestDTO dto){
+    public Equipamento toEntityCriarEquipamento(EquipamentoRequestDTO dto){
         return new Equipamento(dto.nome(),dto.sigla(),dto.descricao(),dto.dataAtivacao());
     }
 

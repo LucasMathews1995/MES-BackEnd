@@ -27,7 +27,7 @@ public interface ProgramacaoRepository extends JpaRepository<Programacao, Long> 
 
     List<Programacao> findByEquipamentoIdAndStatusNotIn(Long equipamentoId,List<StatusProgramacao> status);
 
-    List<Programacao> findByEquipamentoIdAndStatus(Long equipamento_id, StatusProgramacao status);
+    List<Programacao> findByEquipamentoIdAndStatus(Long equipamentoId, StatusProgramacao status);
 
 
     @Query("SELECT new com.example.mes.producao.application.dto.ProgramacaoOrdemProducaoDTO(" +
@@ -49,6 +49,8 @@ List<ProgramacaoOrdemProducaoDTO> findProgramacoesPorEquipamentoEStatusOrdem(
         @Param("equipamentoId") Long equipamentoId,
         @Param("status") StatusProgramacao status
 );
-boolean existsByEquipamentoIdAndStatus(Long equipamentoId, StatusProgramacao status);
+boolean existsByEquipamentoIdAndStatusIn(Long equipamentoId, List<StatusProgramacao> status);
+
+ List<Programacao> findAllByEquipamentoIdAndStatusIn(Long equipamentoId, List<StatusProgramacao> status);
 
 }

@@ -71,12 +71,10 @@ public class CorsConfig {
 public JwtAuthenticationConverter jwtAuthenticationConverter() {
     JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
 
-    // O método correto é setJwtGrantedAuthoritiesConverter
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
         Map<String, Object> realmAccess = jwt.getClaim("realm_access");
         Collection<GrantedAuthority> authorities = new ArrayList<>();
 
-        // 1. Extrai as roles do Keycloak (Manager, etc)
         if (realmAccess != null && realmAccess.containsKey("roles")) {
             List<String> roles = (List<String>) realmAccess.get("roles");
             authorities.addAll(roles.stream()
@@ -84,8 +82,6 @@ public JwtAuthenticationConverter jwtAuthenticationConverter() {
                 .collect(Collectors.toList()));
         }
 
-        // 2. Mantém o escopo padrão do JWT (se houver)
-        // Isso garante que você não perca outras permissões que já funcionavam
         JwtGrantedAuthoritiesConverter defaultConverter = new JwtGrantedAuthoritiesConverter();
         authorities.addAll(defaultConverter.convert(jwt));
 

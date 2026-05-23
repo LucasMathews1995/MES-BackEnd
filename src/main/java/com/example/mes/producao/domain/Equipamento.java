@@ -1,15 +1,9 @@
 package com.example.mes.producao.domain;
 
-import com.example.mes.producao.api.exception.DateTimeEquipamentoException;
 import jakarta.persistence.*;
 import lombok.*;
-
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-
-import java.util.List;
 import java.util.Set;
 
 
@@ -60,6 +54,7 @@ public class Equipamento {
         this.dataAtivacao = dataAtivacao;
         this.dataParado = null;
         isAtivo = true;
+        this.statusEquipamento = StatusEquipamento.OPERANDO;
     }
     public Equipamento(){
 
@@ -88,6 +83,20 @@ public class Equipamento {
         rastreabilidade.setEquipamento(null);
 
 
+    }
+
+    public void desativarEquipamento() {
+        
+        this.statusEquipamento = StatusEquipamento.PARADO;
+        this.dataParado = LocalDateTime.now();
+        this.isAtivo = false;
+
+    }
+    public void ativarEquipamento() {
+      setStatusEquipamento(StatusEquipamento.OPERANDO);
+        setDataParado(null);
+        setDataAtivacao(LocalDateTime.now());
+        setAtivo(true);
     }
 
 

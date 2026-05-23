@@ -76,10 +76,13 @@ public class ProducaoFacade {
         if (lote.getStatus() != StatusLote.ABASTECIDO) {
             throw new AbastecimentoLoteException("Lote " + lote.getNome() + " não está abastecido");
         }
-        lote.setStatus(StatusLote.DESABASTECIDO);
 
-        programacaoService.deletarProgramacaoPorId(programacao.getId());
-        lote.removerProgramacao(programacao);
+            lote.desabastecerLote(programacao);
+    
+
+        rastreabilidadeService.registrarRastreabilidadeLote(lote, programacao.getEquipamento(), "Lote desabastecido: " + lote.getNome());
+       
+        
 
         loteService.salvarLote(lote);
 
@@ -124,18 +127,17 @@ public class ProducaoFacade {
     }
 
     @Transactional
-    public void deletarEquipamentoComValidacao(Long equipamentoId) {
+    public void desativarEquipamento(Long equipamentoId) {
 
-        boolean possuiProgramacaoAbastecida = programacaoService
-                .validarEquipamentoAndStatus(equipamentoId);
+        Equipamento equipamento = equipamentoService.buscarEquipamentoPorId(equipamentoId);
 
-        if (possuiProgramacaoAbastecida) {
-            throw new IllegalStateException(
-                    "Não é possível deletar o equipamento " + equipamentoId
-                            + " porque ele possui programações com status ABASTECIDO.");
-        }
+   
+       programacaoService
+                .excluirProgramasDoEquipamentoParados(equipamentoId);
 
-        equipamentoService.deletarEquipamento(equipamentoId);
+        rastreabilidadeService.registrarRastreabilidadeEquipamento(equipamento, "Equipamento desativado: " + equipamento.getNome());
+
+        equipamentoService.desativarEquipamento(equipamentoId);
     }
 
     public List<ProgramacaoOrdemProducaoDTO> buscarProgramacoesPorEquipamentoAndStatus(Long equipamentoId,
@@ -151,6 +153,18 @@ public class ProducaoFacade {
 
         return programacao;
 
+    }
+
+    public void ativarEquipamento(Long id) {
+        Equipamento equipamento = equipamentoService.buscarEquipamentoPorId(id);
+
+        if (equipamento.getStatusEquipamento() != StatusEquipamento.PARADO) {
+            throw new NotFoundEquipamentoException("Nenhum equipamento encontrado com esse id" + id);
+        }
+
+        rastreabilidadeService.registrarRastreabilidadeEquipamento(equipamento, "Equipamento ativado: " + equipamento.getNome());
+
+        equipamentoService.ativarEquipamento(id);
     }
 
 }

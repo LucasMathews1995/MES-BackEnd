@@ -2,9 +2,10 @@ package com.example.mes.producao.domain;
 
 public enum StatusLote {
     DESABASTECIDO,
-    PROGRAMADO,
     ABASTECIDO,
     PRODUZIDO,
+    REJEITADO,
+    QUALIDADE,
     APROVADO,
-    QUALIDADE
+    TOTALIZADO
 }

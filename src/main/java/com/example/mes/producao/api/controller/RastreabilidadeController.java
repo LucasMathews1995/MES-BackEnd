@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.mes.producao.application.dto.RastreabilidadeDTO;
 import com.example.mes.producao.application.service.RastreabilidadeService;
-import com.example.mes.producao.domain.StatusRastreabilidade;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RequestMapping("rastreabilidade")

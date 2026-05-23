@@ -1,6 +1,6 @@
 package com.example.mes.producao.application.service.strategy.programacao;
 
-import com.example.mes.producao.application.service.LoteService;
+import com.example.mes.producao.api.exception.NotProgramacaoValidException;
 import com.example.mes.producao.application.service.RastreabilidadeService;
 import com.example.mes.producao.domain.Equipamento;
 import com.example.mes.producao.domain.Lote;
@@ -13,32 +13,32 @@ import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EstrategiaAbastecido implements MudancaStatusStrategy {
-
+public class EstrategiaEmExecucao implements MudancaStatusStrategy {
     private final RastreabilidadeService rastreabilidadeService;
-
-    public EstrategiaAbastecido(RastreabilidadeService rastreabilidadeService) {
+    
+    public EstrategiaEmExecucao(RastreabilidadeService rastreabilidadeService) {
         this.rastreabilidadeService = rastreabilidadeService;
-    }   
-
+    }
+    
     @Override
     public StatusProgramacao getStatusAlvo() {
-        return StatusProgramacao.PROGRAMADO;
+        return StatusProgramacao.EM_EXECUCAO;
     }
 
-@Override
+    @Override
     public void processar(Programacao programacao, Lote lote, Equipamento equipamento) {
-        if (programacao.getStatus() != StatusProgramacao.CRIADO) {
-            throw new IllegalStateException("Apenas programações no status CRIADO podem ser abastecidas.");
+        if (programacao.getStatus() != StatusProgramacao.PROGRAMADO) {
+            throw new NotProgramacaoValidException("Apenas programações no status PROGRAMADO podem ser colocadas em execução.");
         }
 
-        
-        programacao.setStatus(StatusProgramacao.PROGRAMADO);
+         programacao.setStatus(StatusProgramacao.EM_EXECUCAO);
 
         
-        String evento = String.format("O lote %s foi abastecido no equipamento %s em %s", 
+        String evento = String.format("O lote %s foi colocado em execução no equipamento %s em %s", 
                                       lote.getNome(), equipamento.getNome(), LocalDateTime.now());
         
-        rastreabilidadeService.registrarEventoRastreabilidade(lote, equipamento, StatusRastreabilidade.ABASTECIDO, evento);
+        rastreabilidadeService.registrarEventoRastreabilidade(lote, equipamento, StatusRastreabilidade.EM_EXECUCAO, evento);
     }
+
+  
 }

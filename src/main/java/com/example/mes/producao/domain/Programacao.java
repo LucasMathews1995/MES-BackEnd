@@ -39,7 +39,7 @@ public class Programacao {
     @Column(name = "fila", nullable = true)
     private Integer fila;
 
-    @Column(precision = 19, nullable = false)
+    @Column(precision = 6, nullable = false)
     private Integer quantidadeConsumida;
 
     public Programacao(Lote lote, Equipamento equipamento, StatusProgramacao statusProgramacao,
@@ -66,6 +66,10 @@ public class Programacao {
     public void colocarEmQualidade() {
         this.fila = null;
         this.status = StatusProgramacao.QUALIDADE;
+    }
+
+    public void retirarProgramaDaLinha() {
+        this.fila = null;
     }
 
     

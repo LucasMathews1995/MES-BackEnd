@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import com.example.mes.producao.api.exception.OrdemAndLoteException;
@@ -31,10 +30,9 @@ public class OrdemProducao {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Getter
-    @Setter
     private StatusOP status;
 
-    @Column(nullable = false, name = "data_criacao")
+    @Column(nullable = false)
     @Getter
     @Setter
     private LocalDateTime dataCriacao;

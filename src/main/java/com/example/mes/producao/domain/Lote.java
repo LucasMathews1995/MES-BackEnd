@@ -10,8 +10,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
+
+import org.springframework.scheduling.config.TaskExecutionOutcome.Status;
 
 @Entity(name = "tb_lote")
 @Getter
@@ -34,7 +35,7 @@ public class Lote {
     @OneToMany(mappedBy = "lote", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Rastreabilidade> rastreabilidade = new HashSet<>();
 
-    @Column(precision = 19, nullable = false)
+    @Column(precision = 7, nullable = false)
     private Integer quantidadeDisponivel;
 
     private LocalDateTime dataCriacao;
@@ -71,6 +72,13 @@ public class Lote {
         this.programacao.remove(programacao);
         programacao.setLote(null);
 
+    }
+    public void desabastecerLote(Programacao programacao) {
+        validarTransicao(this.status, StatusLote.DESABASTECIDO);
+
+        programacao.retirarProgramaDaLinha();
+
+        setStatus(StatusLote.DESABASTECIDO);
     }
 
     public void adicionarProgramacao(Programacao programacao) {
@@ -160,11 +168,7 @@ public class Lote {
 
         setStatus(StatusLote.ABASTECIDO);
     }
-    public void desabastecerLote() {
-        validarTransicao(this.status, StatusLote.DESABASTECIDO);
-
-        setStatus(StatusLote.DESABASTECIDO);
-    }
+    
     public void produzirLote() {
         validarTransicao(this.status, StatusLote.PRODUZIDO);
 
@@ -179,10 +183,10 @@ public class Lote {
     private void validarTransicao(StatusLote atual, StatusLote novo) {
 
         boolean permitida = switch (atual) {
-            case DESABASTECIDO -> novo == StatusLote.PROGRAMADO || novo == StatusLote.QUALIDADE;
-            case PROGRAMADO ->
-                novo == StatusLote.ABASTECIDO || novo == StatusLote.QUALIDADE || novo == StatusLote.DESABASTECIDO;
-            case ABASTECIDO -> novo == StatusLote.PRODUZIDO || novo == StatusLote.PROGRAMADO;
+            case DESABASTECIDO -> novo == StatusLote.ABASTECIDO || novo == StatusLote.APROVADO;
+            case ABASTECIDO ->
+               novo == StatusLote.DESABASTECIDO || novo == StatusLote.REJEITADO;
+            case ABASTECIDO -> novo == StatusLote.PRODUZIDO || novo == StatusLote.PROGRAMADO || novo == StatusLote.DESABASTECIDO;
             case PRODUZIDO -> novo == StatusLote.APROVADO;
 
             default -> false;

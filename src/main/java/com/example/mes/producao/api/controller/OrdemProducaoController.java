@@ -9,8 +9,6 @@ import com.example.mes.producao.application.mapper.OrdemProducaoMapper;
 import com.example.mes.producao.application.service.OrdemProducaoService;
 import com.example.mes.producao.domain.Lote;
 import com.example.mes.producao.domain.OrdemProducao;
-import com.example.mes.producao.domain.StatusOP;
-
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,6 @@
 package com.example.mes.producao.domain;
 
 import java.time.LocalDateTime;
-
-import org.hibernate.validator.constraints.UniqueElements;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,7 +21,7 @@ public class Rastreabilidade {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "lote_id", nullable = false)
+    @JoinColumn(name = "lote_id", nullable = true)
     private Lote lote;
 
     @ManyToOne
@@ -51,7 +48,7 @@ public class Rastreabilidade {
         this.evento = evento;
     }
 
-    public static Rastreabilidade alterRastreabilidade(Lote lote, Equipamento equipamento,StatusRastreabilidade status) {
+    public static Rastreabilidade alterarRastreabilidade(Lote lote, Equipamento equipamento,StatusRastreabilidade status) {
         LocalDateTime agora = LocalDateTime.now();
 
         String descricaoGerada = String.format("O lote %s foi %s no equipamento %s em %s",
@@ -71,6 +68,36 @@ public class Rastreabilidade {
                                               StatusRastreabilidade status, String evento) {
      
         return new Rastreabilidade(lote, equipamento, LocalDateTime.now(), status, evento);
+    }
+
+    public static Rastreabilidade criarEventoEquipamento(Equipamento equipamento, String evento) {
+        LocalDateTime agora = LocalDateTime.now();
+
+        String descricaoGerada = String.format("O equipamento %s teve o evento: %s em %s",
+                equipamento.getNome(), evento, agora.toString());
+
+        return new Rastreabilidade(
+                null, 
+                equipamento, 
+                agora, 
+                StatusRastreabilidade.CRIADO, 
+                descricaoGerada
+        );
+    }
+
+    public static Rastreabilidade criarEventoLote(Lote lote, Equipamento equipamento, String evento) {
+        LocalDateTime agora = LocalDateTime.now();
+
+        String descricaoGerada = String.format("O lote %s teve o evento: %s em %s",
+                lote.getNome(), evento, agora.toString());
+
+        return new Rastreabilidade(
+                lote, 
+                equipamento, 
+                agora, 
+                StatusRastreabilidade.CRIADO, 
+                descricaoGerada
+        );
     }
 
 
