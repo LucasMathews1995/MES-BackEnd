@@ -3,6 +3,7 @@ package com.example.mes.producao.lote.domain;
 import com.example.mes.producao.lote.domain.exceptions.LoteAbastecidoException;
 import com.example.mes.producao.lote.domain.exceptions.NotFoundLoteException;
 import com.example.mes.producao.ordemproducao.domain.OrdemProducao;
+import com.example.mes.producao.ordemproducao.exceptions.OPNotValidException;
 import com.example.mes.producao.programacao.domain.Programacao;
 import com.example.mes.producao.programacao.domain.StatusProgramacao;
 import com.example.mes.producao.rastreabilidade.domain.Rastreabilidade;
@@ -60,17 +61,16 @@ public class Lote {
         this.descricao = descricao;
     }
 
-    private Lote() {
+    public Lote() {
     }
 
     public void reservarLote(Integer quantidadeConsumida) {
         if (this.status == StatusLote.ABASTECIDO || this.status == StatusLote.CONSUMIDO) {
             throw new LoteAbastecidoException("O lote já está abastecido ou consumido.");
         }
-        // if (this.ordemProducao == null) {
-        // throw new OPNotValidException("O lote deve estar associado a uma ordem de
-        // produção para ser abastecido.");
-        // }
+         if (this.ordemProducao == null) {
+         throw new OPNotValidException("O lote deve estar associado a uma ordem de  produção para ser abastecido.");
+        }
         this.quantidadeDisponivel -= quantidadeConsumida;
 
         this.status = StatusLote.RESERVADO;
@@ -116,24 +116,38 @@ public class Lote {
         if (this.status != StatusLote.RESERVADO) {
             throw new LoteAbastecidoException("O lote " + this.nome + " não está reservado.");
         }
-        // if (this.ordemProducao == null) {
-        // throw new OPNotValidException("O lote deve estar associado a uma ordem de
-        // produção para ser abastecido.");
-        // }
+         if (this.ordemProducao == null) {
+         throw new OPNotValidException
+         ("O lote deve estar associado a uma ordem de  produção para ser abastecido.");
+       
+         }
        
 
         this.status = StatusLote.ABASTECIDO;
 
     }
 
-    public void consumirLote(Integer quantidade) {
-      
+    public void consumirLote() {
+      if(this.getQuantidadeDisponivel()!= 0){
 
+        this.status = StatusLote.DESABASTECIDO;
+    }else {
         this.status = StatusLote.CONSUMIDO;
     }
+    }
+
+    public void setLotePai(Lote lotePai){
+        this.lotePai = lotePai;
+    }
+    public Lote vincularOP(OrdemProducao ordemProducao){
+        this.setOrdemProducao(ordemProducao);
+        return this;
+    }
+
+ 
 
 
-    public Lote gerarFilhoParaProgramacao( Integer quantidadeDesejada) {
+    public Lote gerarFilhoParaProgramacao( OrdemProducao producao,Integer quantidadeDesejada,String nome) {
 
         if (this.getQuantidadeDisponivel() < quantidadeDesejada) {
             throw new LoteAbastecidoException(
@@ -142,18 +156,17 @@ public class Lote {
         }
 
         int novaQuantidadePai = this.getQuantidadeDisponivel() - quantidadeDesejada;
-        lotePai.setQuantidadeDisponivel(novaQuantidadePai);
+        this.setQuantidadeDisponivel(novaQuantidadePai);
 
-        char prefixo = nome.charAt(0);
-        int numeros = Integer.parseInt(nome.substring(1));
-        int resultado = numeros + 1;
+        
 
         Lote loteFilho = new Lote();
-        loteFilho.setNome(prefixo + String.valueOf(resultado));
+        loteFilho.vincularOP(producao);
+        loteFilho.setNome(nome);
         loteFilho.setQuantidadeDisponivel(quantidadeDesejada);
         loteFilho.setDataCriacao(LocalDateTime.now());
-        loteFilho.setDescricao("Produzido a partir do lote pai: " + lotePai.getNome());
-        loteFilho.setLotePai(this);
+        loteFilho.setDescricao("Produzido a partir do lote pai: " + this.getNome());
+       loteFilho.setLotePai(this);
         loteFilho.setStatus(StatusLote.DESABASTECIDO);
 
         return loteFilho;

@@ -2,6 +2,7 @@ package com.example.mes.producao.programacao.domain.strategy;
 
 
 
+import com.example.mes.producao.equipamento.model.Equipamento;
 import com.example.mes.producao.programacao.domain.Programacao;
 import com.example.mes.producao.programacao.domain.StatusProgramacao;
 import com.example.mes.producao.programacao.domain.exceptions.NotFoundProgramacaoException;
@@ -24,7 +25,12 @@ public class EstrategiaConcluida implements EstrategiaProgramacao {
         }
 
         programacao.setStatus(StatusProgramacao.CONCLUIDA);
-        programacao.setFila(ultimaFila );
+        programacao.setFila(null);
+
+        Equipamento equipamento =  programacao.getEquipamento();
+        equipamento.acrescerCapacidade(programacao.getQuantidadeConsumida());
+
+
 
     }
     }

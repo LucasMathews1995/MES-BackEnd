@@ -19,9 +19,13 @@ public class OrdemProducao {
     @Getter
     private Long id;
 
-    @Setter
-    @Getter
+    @ManyToOne
+    @JoinColumn(name = "ordem_venda_id")
     private Long ordemVendaId;
+    
+    @Column(name = "equipamentoId", nullable = false)
+    @Getter
+    private Long equipamentoId;
 
     @Column(length = 100, nullable = false, unique = true, name = "numero_op")
     @Getter
@@ -51,18 +55,18 @@ public class OrdemProducao {
 
     }
 
-    private OrdemProducao(String numeroOP, StatusOP status, LocalDateTime dataCriacao) {
+    private OrdemProducao(Long equipamentoId,String numeroOP, StatusOP status, LocalDateTime dataCriacao) {
         this.numeroOP = numeroOP;
         this.status = status;
         this.dataCriacao = dataCriacao;
     }
 
-    public static OrdemProducao criarNormal(String numeroOP) {
-        return new OrdemProducao(numeroOP, StatusOP.INICIADA, LocalDateTime.now());
+    public static OrdemProducao criarNormal(Long equipamentoId ,String numeroOP) {
+        return new OrdemProducao(equipamentoId,numeroOP, StatusOP.INICIADA, LocalDateTime.now());
     }
 
-    public static OrdemProducao criarRetrabalho(String numeroOP) {
-        return new OrdemProducao(numeroOP, StatusOP.RETRABALHO, LocalDateTime.now());
+    public static OrdemProducao criarRetrabalho(Long equipamentoId ,String numeroOP) {
+        return new OrdemProducao(equipamentoId,numeroOP, StatusOP.RETRABALHO, LocalDateTime.now());
     }
 
     public void addLote(Lote lote) {
@@ -84,6 +88,10 @@ public class OrdemProducao {
     }
 
     public void removeLote(Lote lote) {
+        if(lote.getStatus()!=StatusLote.DESABASTECIDO ){
+            throw new OPNotValidException("Impossível remover lote que não está desbastecido");
+        }
+
         this.lotes.remove(lote);
         lote.setOrdemProducao(null);
     }
@@ -92,7 +100,7 @@ public class OrdemProducao {
 
         this.lotes.stream()
                 .filter(it -> it.getId().equals(idLote) &&
-                        (it.getStatus() == StatusLote.QUALIDADE || it.getStatus() == StatusLote.RESERVADO))
+                        (it.getStatus()!= StatusLote.ABASTECIDO || it.getStatus() != StatusLote.RESERVADO))
                 .findFirst().ifPresent(lote -> {
                     removeLote(lote);
                 });
@@ -125,4 +133,9 @@ public class OrdemProducao {
        
         this.status = novoStatus;
     }
+
+
+     
+
+    
 }

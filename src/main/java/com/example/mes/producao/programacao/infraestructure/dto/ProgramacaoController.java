@@ -1,5 +1,6 @@
 package com.example.mes.producao.programacao.infraestructure.dto;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,8 +26,9 @@ public class ProgramacaoController {
         this.programarUseCase = programarUseCase;
     }
     @PostMapping("/save")
-    public ResponseEntity<ProgramacaoOutputDTO> criarProgramacao(@RequestBody ProgramacaoInputDTO input) {
-        return ResponseEntity.ok(programarUseCase.criarProgramacao(input));
+    public ResponseEntity<Void> criarProgramacao(@RequestBody ProgramacaoInputDTO input) {
+        programarUseCase.criarProgramacao(input);
+     return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     @PatchMapping("/{id}/programar")
     public ResponseEntity<ProgramacaoOutputDTO> programar(@PathVariable Long id) {
@@ -35,6 +37,10 @@ public class ProgramacaoController {
      @PatchMapping("/{id}/executar")
     public ResponseEntity<ProgramacaoOutputDTO> executar(@PathVariable Long id) {
         return ResponseEntity.ok(programarUseCase.alterarStatus(id, StatusProgramacao.EM_EXECUCAO));
+    }
+     @PatchMapping("/{id}/concluir")
+    public ResponseEntity<ProgramacaoOutputDTO> concluir(@PathVariable Long id) {
+        return ResponseEntity.ok(programarUseCase.alterarStatus(id, StatusProgramacao.CONCLUIDA));
     }
     
 }

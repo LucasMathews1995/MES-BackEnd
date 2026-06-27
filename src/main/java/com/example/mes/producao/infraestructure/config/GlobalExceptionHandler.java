@@ -9,6 +9,7 @@ import com.example.mes.producao.equipamento.exceptions.EquipamentoNotValidExcept
 import com.example.mes.producao.equipamento.exceptions.NotFoundEquipamentoException;
 import com.example.mes.producao.lote.domain.exceptions.LoteAbastecidoException;
 import com.example.mes.producao.lote.domain.exceptions.NotFoundLoteException;
+import com.example.mes.producao.ordemproducao.exceptions.OPNotFoundException;
 import com.example.mes.producao.programacao.domain.exceptions.NotFoundProgramacaoException;
 import com.example.mes.producao.programacao.domain.exceptions.ProgramacaoNotValidException;
 
@@ -43,5 +44,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleLoteAbastecidoException(LoteAbastecidoException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
-
+    @ExceptionHandler(OPNotFoundException.class)
+    public ResponseEntity<String> hanfleOPNotFoundException(OPNotFoundException ex){
+        return new  ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }

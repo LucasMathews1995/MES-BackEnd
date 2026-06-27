@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import com.example.mes.producao.equipamento.exceptions.EquipamentoNotValidException;
 import com.example.mes.producao.equipamento.model.Equipamento;
 import com.example.mes.producao.lote.domain.Lote;
+import com.example.mes.producao.ordemproducao.domain.OrdemProducao;
+import com.example.mes.producao.ordemproducao.exceptions.OPNotValidException;
 
 
 @Entity
@@ -63,21 +65,18 @@ public class Programacao {
 
     }
 
-    public static Programacao criarPrograma(Equipamento equipamento, Lote lote, Integer quantidadeConsumida) {
+    public static Programacao criarPrograma(OrdemProducao producao,Equipamento equipamento, Lote loteConsumido,Lote loteProduzido, Integer quantidadeConsumida) {
          Programacao programacao = null;
 
         if (!equipamento.isAtivo()) {
             throw new EquipamentoNotValidException("O equipamento não está ativo");
         }
-        if (equipamento.getCapacidade() < quantidadeConsumida) {
-            
-          Lote loteFilho = lote.gerarFilhoParaProgramacao( equipamento.getCapacidade()); 
-        
-           programacao = new Programacao(lote,loteFilho, equipamento, StatusProgramacao.CRIADA, quantidadeConsumida);
-          
+        if(!producao.getEquipamentoId().equals(equipamento.getId())){
+            throw new OPNotValidException("A ordem de produção está destinada a outro equipamento :" + producao.getEquipamentoId());
         }
+        
 
-         programacao = new Programacao(lote,lote, equipamento, StatusProgramacao.CRIADA, quantidadeConsumida);
+         programacao = new Programacao(loteConsumido,loteProduzido, equipamento, StatusProgramacao.CRIADA, quantidadeConsumida);
         return programacao;
 
     }
@@ -95,6 +94,8 @@ public class Programacao {
     }
 
     public void programarLote(){
+        
+       
         this.setStatus(StatusProgramacao.PROGRAMADA);
     }
 

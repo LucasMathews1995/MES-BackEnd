@@ -25,9 +25,11 @@ public class EstrategiaProgramada implements EstrategiaProgramacao {
             throw new ProgramacaoNotValidException("Apenas programações no status CRIADO podem ser programadas.");
 
         }
+     
 
         programacao.programarLote();
         programacao.setFila(ultimaFila);
+       
 
     }
 

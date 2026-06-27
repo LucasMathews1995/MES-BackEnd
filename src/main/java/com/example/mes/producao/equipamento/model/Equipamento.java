@@ -119,5 +119,13 @@ public class Equipamento {
         }
         this.capacidade = this.capacidade - quantidadeConsumida;
     }
+    
+    public void acrescerCapacidade(Integer quantidadeConsumida) {
+       
+        this.capacidade = this.capacidade + quantidadeConsumida;
+    }
+
+
+    
 
 }

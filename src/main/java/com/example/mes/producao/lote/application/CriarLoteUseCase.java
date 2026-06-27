@@ -40,10 +40,10 @@ public class CriarLoteUseCase {
     
 private String gerarNomeLoteUnico() {
         Random random = new Random();
-       
-        int numeroSorteado = random.nextInt(10000000); 
+      
+        int numeroSorteado = random.nextInt(999_999); 
   
-        String numeroFormatado = String.format("%07d", numeroSorteado); 
+        String numeroFormatado = String.format("%06d", numeroSorteado); 
 
         char prefixo = 'A';
         String tentativaNome = prefixo + numeroFormatado;
@@ -56,10 +56,10 @@ private String gerarNomeLoteUnico() {
                 throw new IllegalStateException("Limite máximo de prefixos (A-Z) atingido para a numeração: " + numeroFormatado);
             }
             
-            tentativaNome = prefixo + numeroFormatado;
+           
         }
 
-        return tentativaNome;
+        return tentativaNome +"0100";
     }
  
     
