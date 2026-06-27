@@ -19,8 +19,7 @@ public class OrdemProducao {
     @Getter
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "ordem_venda_id")
+    
     private Long ordemVendaId;
     
     @Column(name = "equipamentoId", nullable = false)
@@ -51,15 +50,14 @@ public class OrdemProducao {
     @Getter
     private Set<Lote> lotes = new HashSet<>();
 
-    public OrdemProducao() {
-
-    }
 
     private OrdemProducao(Long equipamentoId,String numeroOP, StatusOP status, LocalDateTime dataCriacao) {
         this.numeroOP = numeroOP;
         this.status = status;
         this.dataCriacao = dataCriacao;
+        this.equipamentoId = equipamentoId;
     }
+    
 
     public static OrdemProducao criarNormal(Long equipamentoId ,String numeroOP) {
         return new OrdemProducao(equipamentoId,numeroOP, StatusOP.INICIADA, LocalDateTime.now());
@@ -69,27 +67,24 @@ public class OrdemProducao {
         return new OrdemProducao(equipamentoId,numeroOP, StatusOP.RETRABALHO, LocalDateTime.now());
     }
 
-    public void addLote(Lote lote) {
+    public void adicionarLote(Lote lote) {
 
         if (lote.getOrdemProducao() != null) {
             throw new OPNotValidException("O lote " + lote.getNome() + " já está vinculado a uma ordem de produção");
 
         }
        
-
-
         this.lotes.add(lote);
-
-        lote.setOrdemProducao(this);
 
         if (this.status == StatusOP.INICIADA) {
             this.status = StatusOP.PROCESSANDO;
         }
     }
 
-    public void removeLote(Lote lote) {
-        if(lote.getStatus()!=StatusLote.DESABASTECIDO ){
-            throw new OPNotValidException("Impossível remover lote que não está desbastecido");
+
+    public void removerLote(Lote lote) {
+        if(lote.getStatus()!=StatusLote.DESABASTECIDO || lote.getStatus() != StatusLote.CONSUMIDO){
+            throw new OPNotValidException("Impossível remover lote que não está desbastecido ou consumido");
         }
 
         this.lotes.remove(lote);
@@ -102,7 +97,7 @@ public class OrdemProducao {
                 .filter(it -> it.getId().equals(idLote) &&
                         (it.getStatus()!= StatusLote.ABASTECIDO || it.getStatus() != StatusLote.RESERVADO))
                 .findFirst().ifPresent(lote -> {
-                    removeLote(lote);
+                    removerLote(lote);
                 });
 
         if (this.lotes.isEmpty() && this.getStatus() == StatusOP.PROCESSANDO) {

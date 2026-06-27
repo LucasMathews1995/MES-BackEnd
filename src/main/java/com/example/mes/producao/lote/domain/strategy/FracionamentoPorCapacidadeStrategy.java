@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import com.example.mes.producao.equipamento.model.Equipamento;
 import com.example.mes.producao.lote.domain.Lote;
-import com.example.mes.producao.lote.domain.strategy.factory.EstrategiaCriacaoLoteFactory;
 import com.example.mes.producao.lote.infraestructure.persistence.LoteRepository;
 import com.example.mes.producao.ordemproducao.domain.OrdemProducao;
 
@@ -15,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class FracionamentoPorCapacidadeStrategy implements EstrategiaCriacaoLoteFactory{
+public class FracionamentoPorCapacidadeStrategy implements EstrategiaCriacaoLote{
     private final LoteRepository loteRepository;
 
     @Override

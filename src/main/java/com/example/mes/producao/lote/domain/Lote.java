@@ -133,14 +133,17 @@ public class Lote {
         this.status = StatusLote.DESABASTECIDO;
     }else {
         this.status = StatusLote.CONSUMIDO;
+        this.ordemProducao.desvincularLote(this.id);
     }
     }
 
     public void setLotePai(Lote lotePai){
         this.lotePai = lotePai;
     }
+
     public Lote vincularOP(OrdemProducao ordemProducao){
         this.setOrdemProducao(ordemProducao);
+        ordemProducao.adicionarLote(this);
         return this;
     }
 

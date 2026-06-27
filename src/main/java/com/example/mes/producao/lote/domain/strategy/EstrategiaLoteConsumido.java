@@ -21,6 +21,7 @@ public class EstrategiaLoteConsumido implements EstrategiaLote {
         Lote lote = programacao.getLoteConsumido();
       
            lote.consumirLote();
+           
         } 
            
         

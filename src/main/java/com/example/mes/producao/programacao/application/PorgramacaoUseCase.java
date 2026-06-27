@@ -12,6 +12,7 @@ import com.example.mes.producao.equipamento.repositories.EquipamentoRepository;
 import com.example.mes.producao.lote.domain.Lote;
 import com.example.mes.producao.lote.domain.event.LoteEvent;
 import com.example.mes.producao.lote.domain.exceptions.NotFoundLoteException;
+import com.example.mes.producao.lote.domain.strategy.EstrategiaCriacaoLote;
 import com.example.mes.producao.lote.domain.strategy.factory.EstrategiaCriacaoLoteFactory;
 import com.example.mes.producao.lote.infraestructure.persistence.LoteRepository;
 import com.example.mes.producao.ordemproducao.domain.OrdemProducao;
@@ -42,8 +43,8 @@ public class PorgramacaoUseCase {
         public PorgramacaoUseCase(ProgramacaoRepository programacaoRepository,
                         EquipamentoRepository equipamentoRepository,
                         LoteRepository loteRepository,
-                        EstrategiaProgramacaoFactory factory, ApplicationEventPublisher eventPublisher
-                        ,OrdemProducaoRepository oProducaoRepository,EstrategiaCriacaoLoteFactory criacaoLoteFactory) {
+                        EstrategiaProgramacaoFactory factory, ApplicationEventPublisher eventPublisher,
+                        OrdemProducaoRepository oProducaoRepository, EstrategiaCriacaoLoteFactory criacaoLoteFactory) {
                 this.programacaoRepository = programacaoRepository;
                 this.equipamentoRepository = equipamentoRepository;
                 this.loteRepository = loteRepository;
@@ -64,24 +65,29 @@ public class PorgramacaoUseCase {
                                 .orElseThrow(() -> new NotFoundLoteException(
                                                 "Lote não encontrado com id: " + input.loteId()));
 
-                 OrdemProducao ordemProducao =   oProducaoRepository.findById(input.ordemId())
-                 .orElseThrow(()-> new OPNotFoundException(
-                        "nenhuma OP achada com esse id : " + input.ordemId()));
-                 
-                        
-                        List<Lote> lotesProcessados = criacaoLoteFactory.deveFracionar(equipamento, input.quantidadeConsumida()) 
-        ? criacaoLoteFactory.executar(ordemProducao, lote, input.quantidadeConsumida(), equipamento.getCapacidade())
-        : List.of(lote.vincularOP(ordemProducao));
+                OrdemProducao ordemProducao = oProducaoRepository.findById(input.ordemId())
+                                .orElseThrow(() -> new OPNotFoundException(
+                                                "nenhuma OP achada com esse id : " + input.ordemId()));
 
+                EstrategiaCriacaoLote estrategiaCriacaoLote = criacaoLoteFactory.obEstrategiaCriacaoLote(equipamento,
+                                input.quantidadeConsumida());
 
-                       loteRepository.saveAll(lotesProcessados);
-                       List<Programacao> programacoes = lotesProcessados.stream()
-        .map(l -> Programacao.criarPrograma(ordemProducao, equipamento, lote, l, l.getQuantidadeDisponivel()))
-        .toList();
-        
-programacaoRepository.saveAll(programacoes);
+                List<Lote> lotesProcessados = estrategiaCriacaoLote.deveFracionar(equipamento,
+                                input.quantidadeConsumida())
+                                                ? estrategiaCriacaoLote.executar(ordemProducao, lote,
+                                                                input.quantidadeConsumida(),
+                                                                equipamento.getCapacidade())
+                                                : List.of(lote.vincularOP(ordemProducao));
 
-                        programacoes.forEach(p -> eventPublisher.publishEvent(new RastreabilidadeEvent(p)));
+                loteRepository.saveAll(lotesProcessados);
+                List<Programacao> programacoes = lotesProcessados.stream()
+                                .map(l -> Programacao.criarPrograma(ordemProducao, equipamento, lote, l,
+                                                l.getQuantidadeDisponivel()))
+                                .toList();
+
+                programacaoRepository.saveAll(programacoes);
+
+                programacoes.forEach(p -> eventPublisher.publishEvent(new RastreabilidadeEvent(p)));
 
         }
 
@@ -110,10 +116,4 @@ programacaoRepository.saveAll(programacoes);
                 return ProgramacaoOutputDTO.fromEntity(programacao);
         }
 
-
-
-
-     
-       
-               
 }

@@ -1,4 +1,4 @@
-package com.example.mes.producao.ordemproducao.infraestructure.dto;
+package com.example.mes.producao.ordemproducao.dto;
 
 import jakarta.validation.constraints.NotNull;
 

@@ -5,8 +5,8 @@ import java.util.Random;
 import org.springframework.stereotype.Service;
 
 import com.example.mes.producao.ordemproducao.domain.OrdemProducao;
-import com.example.mes.producao.ordemproducao.infraestructure.dto.OrdemProducaoInputDTO;
-import com.example.mes.producao.ordemproducao.infraestructure.dto.OrdemProducaoOuputDTO;
+import com.example.mes.producao.ordemproducao.dto.OrdemProducaoInputDTO;
+import com.example.mes.producao.ordemproducao.dto.OrdemProducaoOuputDTO;
 import com.example.mes.producao.ordemproducao.infraestructure.persistence.OrdemProducaoRepository;
 
 import jakarta.transaction.Transactional;
@@ -53,7 +53,7 @@ public class OrdemProducaoUseCase {
         int numero = new Random().nextInt(999_999);
          nome = String.format("%s%d", prefixo,numero);
             
-        }while(!repository.existsByNumeroOP(nome));
+        }while(repository.existsByNumeroOP(nome));
 
         return nome;
     }

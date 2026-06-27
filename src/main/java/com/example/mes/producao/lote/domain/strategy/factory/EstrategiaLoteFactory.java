@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.example.mes.producao.lote.domain.StatusLote;
+import com.example.mes.producao.lote.domain.exceptions.EstrategiaNotFoundException;
 import com.example.mes.producao.lote.domain.strategy.EstrategiaLote;
 
 @Component
@@ -23,7 +24,7 @@ public class EstrategiaLoteFactory {
         return estrategias.stream()
                 .filter(est -> est.getStatusAlvo() == statusLote)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Estratégia não disponível para o status: " + statusLote));
+                .orElseThrow(() -> new EstrategiaNotFoundException("Estratégia não disponível para o status: " + statusLote));
     }
 }
 
