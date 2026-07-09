@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import com.example.mes.producao.programacao.domain.Programacao;
 
-public record ProgramacaoOutputDTO (Long loteId , Long equipamentoId, LocalDateTime dataHoraProgramada, Integer quantidadeConsumida) {
+public record ProgramacaoOutputDTO (Long loteId , Long equipamentoId, LocalDateTime dataHoraProgramada, Long quantidadeConsumida) {
 
     public static ProgramacaoOutputDTO fromEntity(Programacao programacao) {
         return new ProgramacaoOutputDTO(

@@ -14,7 +14,7 @@ public record EquipamentoRequestDTO(
         @NotBlank(message = "A sigla não pode ser vazia") String sigla,
         @NotBlank(message = "A descrição não pode ser vazia") String descricao,
        @NotNull(message = "A data de ativação não pode ser nula")  LocalDateTime dataAtivacao,
-        @Min(value = 1000, message = "A capacidade deve ser um número maior que 1000.") @Max(value = 1000000, message = "A capacidade deve ser um número menor que 1000000.") Integer capacidade) {
+        @Min(value = 1000, message = "A capacidade deve ser um número maior que 1000.") @Max(value = 1000000000, message = "A capacidade deve ser um número menor que 100000000.") Long capacidade) {
 
  public EquipamentoRequestDTO {
         if (nome != null) nome = nome.trim().replaceAll("\\s+", " ");

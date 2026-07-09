@@ -9,11 +9,11 @@ import com.example.mes.producao.equipamento.model.Equipamento;
 import com.example.mes.producao.lote.domain.Lote;
 import com.example.mes.producao.ordemproducao.domain.OrdemProducao;
 import com.example.mes.producao.ordemproducao.exceptions.OPNotValidException;
-
+import com.example.mes.producao.programacao.domain.exceptions.ProgramacaoNotValidException;
 
 @Entity
 @Table(name = "tb_programacao", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_equipamento_fila", columnNames = { "equipamento_id", "fila" })
+        @UniqueConstraint(name = "uk_equipamento_fila_status", columnNames = { "equipamento_id", "fila", "status" })
 })
 @Getter
 @Setter
@@ -27,7 +27,7 @@ public class Programacao {
     @JoinColumn(name = "lote_consumido_id")
     private Lote loteConsumido;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     @JoinColumn(name = "lote_produzido_id")
     private Lote loteProduzido;
 
@@ -48,10 +48,11 @@ public class Programacao {
     private Integer fila;
 
     @Column(precision = 6, nullable = false)
-    private Integer quantidadeConsumida;
+    private Long quantidadeConsumida;
 
-    private Programacao(Lote loteConsumido,Lote loteProduzido, Equipamento equipamento, StatusProgramacao statusProgramacao,
-            Integer quantidadeConsumida) {
+    private Programacao(Lote loteConsumido, Lote loteProduzido, Equipamento equipamento,
+            StatusProgramacao statusProgramacao,
+            Long quantidadeConsumida) {
         this.equipamento = equipamento;
         this.loteConsumido = loteConsumido;
         this.loteProduzido = loteProduzido;
@@ -65,23 +66,23 @@ public class Programacao {
 
     }
 
-    public static Programacao criarPrograma(OrdemProducao producao,Equipamento equipamento, Lote loteConsumido,Lote loteProduzido, Integer quantidadeConsumida) {
-         Programacao programacao = null;
+    public static Programacao criarPrograma(OrdemProducao producao, Equipamento equipamento, Lote loteConsumido,
+            Lote loteProduzido, Long quantidadeConsumida) {
+        Programacao programacao = null;
 
         if (!equipamento.isAtivo()) {
             throw new EquipamentoNotValidException("O equipamento não está ativo");
         }
-        if(!producao.getEquipamentoId().equals(equipamento.getId())){
-            throw new OPNotValidException("A ordem de produção está destinada a outro equipamento :" + producao.getEquipamentoId());
+        if (!producao.getEquipamentoId().equals(equipamento.getId())) {
+            throw new OPNotValidException(
+                    "A ordem de produção está destinada a outro equipamento :" + producao.getEquipamentoId());
         }
-        
 
-         programacao = new Programacao(loteConsumido,loteProduzido, equipamento, StatusProgramacao.CRIADA, quantidadeConsumida);
+        programacao = new Programacao(loteConsumido, loteProduzido, equipamento, StatusProgramacao.CRIADA,
+                quantidadeConsumida);
         return programacao;
 
     }
-
-   
 
     public void setFila(Integer ultimaFila) {
 
@@ -93,13 +94,33 @@ public class Programacao {
 
     }
 
-    public void programarLote(){
-        
-       
+    public void programarLote(Integer ultimaFila) {
+
         this.setStatus(StatusProgramacao.PROGRAMADA);
+        this.setFila(ultimaFila);
     }
 
+    public void cancelarProgramacao() {
+        this.setStatus(StatusProgramacao.CANCELADA);
+        this.setFila(null);
+        
+      
+    }
 
-   
+    public void colocarEmQualidade() {
+        if(this.status != StatusProgramacao.PROGRAMADA && this.status != StatusProgramacao.EM_EXECUCAO) {
+            throw new ProgramacaoNotValidException("A programação deve estar em status PROGRAMADA ou EM_EXECUCAO para ser colocada em QUALIDADE.");
+
+        }
+        this.setStatus(StatusProgramacao.QUALIDADE);
+        this.setFila(null);
+       
+    }
+
+    public void retirarDaQualidade() {
+
+        this.setStatus(StatusProgramacao.CRIADA);
+       
+    }
 
 }

@@ -18,11 +18,11 @@ public class EstrategiaCriacaoLoteFactory {
         this.estrategia =estrategia;
     }
 
-    public EstrategiaCriacaoLote obEstrategiaCriacaoLote(Equipamento equipamento,int quantidade){
+    public EstrategiaCriacaoLote obEstrategiaCriacaoLote(Equipamento equipamento,Long quantidade){
        return estrategia.stream()
         .filter(est-> est.deveFracionar(equipamento,quantidade ))
         .findFirst()
-        .orElseThrow(()-> new EstrategiaNotFoundException("Nenhuma estrategia encontrada para esse Status") );
+        .orElseThrow(() -> new EstrategiaNotFoundException("Nenhuma estratégia encontrada para os parâmetros informados"));
     }
 
 }

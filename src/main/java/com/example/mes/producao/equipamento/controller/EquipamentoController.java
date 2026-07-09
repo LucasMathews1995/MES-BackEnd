@@ -1,6 +1,8 @@
 package com.example.mes.producao.equipamento.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,5 +29,12 @@ public class EquipamentoController {
         public ResponseEntity<EquipamentoOutputDTO> criarEquipamento(@RequestBody @Valid EquipamentoRequestDTO equipamentoRequestDTO) {
             EquipamentoOutputDTO equipamentoCriado = equipamentoService.criarEquipamento(equipamentoRequestDTO);
             return ResponseEntity.ok(equipamentoCriado);
+        }
+
+
+        @PatchMapping("/update/{id}")
+        public ResponseEntity<EquipamentoOutputDTO> atualizarEquipamento(@PathVariable Long id, @RequestBody @Valid EquipamentoRequestDTO equipamentoRequestDTO) {
+            EquipamentoOutputDTO equipamentoAtualizado = equipamentoService.atualizarEquipamento(id, equipamentoRequestDTO);
+            return ResponseEntity.ok(equipamentoAtualizado);
         }
 }

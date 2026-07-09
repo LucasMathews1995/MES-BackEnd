@@ -1,8 +1,8 @@
 package com.example.mes.producao.rastreabilidade.domain.event;
 
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import com.example.mes.producao.equipamento.model.StatusEquipamento;
 import com.example.mes.producao.programacao.domain.StatusProgramacao;
 import com.example.mes.producao.rastreabilidade.domain.Rastreabilidade;
@@ -19,7 +19,7 @@ public class RastreabilidadeListener {
         this.rastreabilidadeRepository = rastreabilidadeRepository;
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void rastrearProgramacao(RastreabilidadeEvent event) {
         StatusRastreabilidade statusRastreabilidade  = mudarRastreabilidade(event.programacao().getStatus());
 
@@ -31,7 +31,7 @@ public class RastreabilidadeListener {
 
 
     }
-    @EventListener
+   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void rastrearEquipamento(RastreabilidadeEquipamentoEvent event){
         StatusRastreabilidade statusRastreabilidade = mudarRastreabilidadeEquipamento(event.equipamento().getStatusEquipamento());
 

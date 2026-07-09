@@ -22,6 +22,7 @@ public class EstrategiaLoteReservado implements EstrategiaLote {
     public void processar(Programacao programacao)  {
         
         programacao.getLoteConsumido().reservarLote(programacao.getQuantidadeConsumida());
+        programacao.getLoteProduzido().produzirLote();
  
     }
 

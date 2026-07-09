@@ -1,8 +1,5 @@
 package com.example.mes.producao.lote.domain.strategy;
 
-
-import java.util.List;
-
 import org.springframework.stereotype.Component;
 
 import com.example.mes.producao.lote.domain.Lote;
@@ -10,15 +7,19 @@ import com.example.mes.producao.lote.domain.StatusLote;
 import com.example.mes.producao.lote.infraestructure.persistence.LoteRepository;
 import com.example.mes.producao.programacao.domain.Programacao;
 
+
 @Component
-public class EstrategiaLoteConsumido implements EstrategiaLote {
+public class EstrategiaLoteDesabastecido implements EstrategiaLote {
+
     private final LoteRepository loteRepository;
-    public EstrategiaLoteConsumido(LoteRepository loteRepository) {
+
+    public EstrategiaLoteDesabastecido(LoteRepository loteRepository) {
         this.loteRepository = loteRepository;
     }
+
     @Override
     public StatusLote getStatusAlvo() {
-        return StatusLote.CONSUMIDO;
+        return StatusLote.DESABASTECIDO;
     }
 
     @Override
@@ -26,15 +27,11 @@ public class EstrategiaLoteConsumido implements EstrategiaLote {
 
         Lote loteConsumido = programacao.getLoteConsumido();
         Lote loteProduzido = programacao.getLoteProduzido();
-        loteProduzido.liberarLote();
-      
-           loteConsumido.consumirLote();
-            loteRepository.saveAll(List.of(programacao.getLoteConsumido(), programacao.getLoteProduzido()));
-           
-        } 
-           
+        loteConsumido.retornarQuantidade(programacao.getQuantidadeConsumida());
+        loteConsumido.desabastecerLote();
+        loteRepository.delete(loteProduzido);
+        programacao.setLoteProduzido(null);
         
-
-    
+    }
 
 }

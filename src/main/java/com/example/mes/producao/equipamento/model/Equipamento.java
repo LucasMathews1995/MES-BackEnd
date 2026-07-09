@@ -54,10 +54,10 @@ public class Equipamento {
     @Enumerated(EnumType.STRING)
     private StatusEquipamento statusEquipamento;
 
-    @Column(precision = 6, nullable = false)
-    private Integer capacidade;
+    @Column(precision = 10, nullable = false)
+    private Long capacidade;
 
-    public Equipamento(String nome, String sigla, String descricao, LocalDateTime dataAtivacao,Integer capacidade) {
+    public Equipamento(String nome, String sigla, String descricao, LocalDateTime dataAtivacao,Long capacidade) {
        
         this.nome = nome;
         this.sigla = sigla;
@@ -112,7 +112,7 @@ public class Equipamento {
         setAtivo(true);
     }
 
-    public void diminuirCapacidade(Integer quantidadeConsumida) {
+    public void diminuirCapacidade(Long quantidadeConsumida) {
         if (this.capacidade < quantidadeConsumida) {
             throw new EquipamentoNotValidException(
                     "A quantidade consumida é maior do que a capacidade do equipamento.");
@@ -120,7 +120,7 @@ public class Equipamento {
         this.capacidade = this.capacidade - quantidadeConsumida;
     }
     
-    public void acrescerCapacidade(Integer quantidadeConsumida) {
+    public void acrescerCapacidade(Long quantidadeConsumida) {
        
         this.capacidade = this.capacidade + quantidadeConsumida;
     }

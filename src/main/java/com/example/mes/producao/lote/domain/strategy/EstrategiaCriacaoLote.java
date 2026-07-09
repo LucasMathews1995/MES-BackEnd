@@ -8,6 +8,6 @@ import com.example.mes.producao.ordemproducao.domain.OrdemProducao;
 
 public interface EstrategiaCriacaoLote {
 
-boolean deveFracionar(Equipamento eq, int quantidade);
-List<Lote> executar(OrdemProducao op, Lote lotePai, int quantidade,int capacidade);
+boolean deveFracionar(Equipamento eq, Long  quantidade);
+List<Lote> executar(OrdemProducao op, Lote lote, Long quantidade,Long capacidade);
 }

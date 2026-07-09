@@ -38,4 +38,27 @@ public class EquipamentoService {
                 equipamentoSalvo.getSigla(), equipamentoSalvo.getDescricao());
     }
 
+    @Transactional
+    public EquipamentoOutputDTO atualizarEquipamento(Long id, EquipamentoRequestDTO equipamento) {
+        Equipamento equipamentoExistente = equipamentoRepository.findById(id)
+                .orElseThrow(() -> new EquipamentoNotValidException("Equipamento com id '" + id + "' não encontrado."));
+
+        if (equipamentoExistente.getNome().equals(equipamento.nome())
+                && equipamentoRepository.checarSeNomeAchatadoExiste(equipamento.getNomeAchatado())) {
+            throw new EquipamentoNotValidException("Equipamento com nome '" + equipamento.nome() + "' já existe.");
+        }
+
+        equipamentoExistente.setNome(equipamento.nome());
+        equipamentoExistente.setSigla(equipamento.sigla());
+        equipamentoExistente.setDescricao(equipamento.descricao());
+        equipamentoExistente.setDataAtivacao(equipamento.dataAtivacao());
+        equipamentoExistente.setCapacidade(equipamento.capacidade());
+
+        equipamentoRepository.save(equipamentoExistente);
+        
+        eventPublisher.publishEvent(new RastreabilidadeEquipamentoEvent(equipamentoExistente));
+        return new EquipamentoOutputDTO(equipamentoExistente.getId(), equipamentoExistente.getNome(),
+                equipamentoExistente.getSigla(), equipamentoExistente.getDescricao());
+    }
+
 }

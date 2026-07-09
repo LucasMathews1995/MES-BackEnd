@@ -8,7 +8,11 @@ public interface EstrategiaProgramacao {
 
     StatusProgramacao getStatusAlvo();
 
-    void processar(Programacao programacao,Integer ultimaFila);
+   default void processar(Programacao programacao,Integer ultimaFila){
+
+   }
+
+   default void processar(Programacao programacao){}
 
 
 }

@@ -42,5 +42,13 @@ public class ProgramacaoController {
     public ResponseEntity<ProgramacaoOutputDTO> concluir(@PathVariable Long id) {
         return ResponseEntity.ok(programarUseCase.alterarStatus(id, StatusProgramacao.CONCLUIDA));
     }
+    @PatchMapping("/{id}/cancelar")
+    public ResponseEntity<ProgramacaoOutputDTO> cancelar(@PathVariable Long id) {
+        return ResponseEntity.ok(programarUseCase.alterarStatus(id, StatusProgramacao.CANCELADA));
+    }
+      @PatchMapping("/{id}/colocar-qualidade")
+    public ResponseEntity<ProgramacaoOutputDTO> colocarQualidade(@PathVariable Long id) {
+        return ResponseEntity.ok(programarUseCase.alterarStatus(id, StatusProgramacao.QUALIDADE));
+    }
     
 }

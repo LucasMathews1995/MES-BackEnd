@@ -1,9 +1,7 @@
 package com.example.mes.producao.programacao.application;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
+import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import com.example.mes.producao.equipamento.exceptions.NotFoundEquipamentoException;
@@ -65,24 +63,25 @@ public class PorgramacaoUseCase {
                                 .orElseThrow(() -> new NotFoundLoteException(
                                                 "Lote não encontrado com id: " + input.loteId()));
 
-                OrdemProducao ordemProducao = oProducaoRepository.findById(input.ordemId())
+                OrdemProducao ordemProducao = oProducaoRepository.findById(lote.getOrdemProducao().getId())
                                 .orElseThrow(() -> new OPNotFoundException(
-                                                "nenhuma OP achada com esse id : " + input.ordemId()));
+                                                "nenhuma OP achada com esse id : " + lote.getOrdemProducao().getId()));
 
                 EstrategiaCriacaoLote estrategiaCriacaoLote = criacaoLoteFactory.obEstrategiaCriacaoLote(equipamento,
                                 input.quantidadeConsumida());
 
-                List<Lote> lotesProcessados = estrategiaCriacaoLote.deveFracionar(equipamento,
-                                input.quantidadeConsumida())
-                                                ? estrategiaCriacaoLote.executar(ordemProducao, lote,
+                
+
+                List<Lote> lotesProcessados = estrategiaCriacaoLote.executar(ordemProducao, lote,
                                                                 input.quantidadeConsumida(),
-                                                                equipamento.getCapacidade())
-                                                : List.of(lote.vincularOP(ordemProducao));
+                                                                equipamento.getCapacidade());
+                                             
 
                 loteRepository.saveAll(lotesProcessados);
+
                 List<Programacao> programacoes = lotesProcessados.stream()
                                 .map(l -> Programacao.criarPrograma(ordemProducao, equipamento, lote, l,
-                                                l.getQuantidadeDisponivel()))
+                                                input.quantidadeConsumida()))
                                 .toList();
 
                 programacaoRepository.saveAll(programacoes);
@@ -97,22 +96,19 @@ public class PorgramacaoUseCase {
                                 .orElseThrow(() -> new NotFoundLoteException(
                                                 "Programação não encontrada com id: " + programacaoId));
 
-                Long equiapemtnoId = programacao.getEquipamento().getId();
 
-                Integer ultimaFila = programacaoRepository.findMaxOrdemByEquipamentoAndStatus(
-                                equiapemtnoId,
-                                novoStatus);
 
                 EstrategiaProgramacao estrategia = factory.obterEstrategia(novoStatus);
-                estrategia.processar(programacao, ultimaFila);
+                estrategia.processar(programacao);
 
                 eventPublisher
                                 .publishEvent(new LoteEvent(novoStatus, programacao));
 
-                programacaoRepository.save(programacao);
+               
 
                 eventPublisher.publishEvent(new RastreabilidadeEvent(programacao));
-
+                        
+                
                 return ProgramacaoOutputDTO.fromEntity(programacao);
         }
 

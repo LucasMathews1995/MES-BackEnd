@@ -14,24 +14,24 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class FracionamentoPorCapacidadeStrategy implements EstrategiaCriacaoLote{
+public class LoteFilhoEstrategia implements EstrategiaCriacaoLote{
     private final LoteRepository loteRepository;
 
     @Override
-    public boolean deveFracionar(Equipamento eq, int quantidade) {
+    public boolean deveFracionar(Equipamento eq, Long quantidade) {
        return eq.getCapacidade() < quantidade;
     }
 
     @Override
-    public List<Lote> executar(OrdemProducao op, Lote lotePai, int quantidade,int capacidade) {
+    public List<Lote> executar(OrdemProducao op, Lote lotePai, Long quantidade,Long capacidade) {
        
 
-int qteLotes = quantidade / capacidade;
-        int restante = quantidade % capacidade;
+        long qteLotes = quantidade / capacidade;
+        long restante = quantidade % capacidade;
         List<Lote> lotes = new ArrayList<>();
         String ultimoNome = lotePai.getNome();
 
-        for (int i = 0; i < qteLotes; i++) {
+        for (long i = 0; i < qteLotes; i++) {
             ultimoNome = gerarNome(ultimoNome);
             lotes.add(lotePai.gerarFilhoParaProgramacao(op, capacidade, ultimoNome));
         }
@@ -40,6 +40,8 @@ int qteLotes = quantidade / capacidade;
             ultimoNome = gerarNome(ultimoNome);
             lotes.add(lotePai.gerarFilhoParaProgramacao(op, restante, ultimoNome));
         }
+
+     
         return lotes;
     }
 
