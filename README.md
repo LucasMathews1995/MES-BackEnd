@@ -63,7 +63,7 @@ O status do lote é gerenciado automaticamente através das operações realizad
 | `POST` | `api/lote/save` | Cria um novo lote no sistema.                                                       |
 | `DELETE` | `/lote/{id}` | Remove um lote do sistema.                                                          |não implementada ainda
 
-**Nota para o Recrutador/Desenvolvedor:**  O fluxo de status de um lote/progrmacao geralmente segue a ordem: **Desabetecido(criada) ➔ Reservado(programada) ➔ Abastecido(em execução) ➔ Consumido(se for totalmente consumido o lote . Programacao = concluida) , Desabastecido( se lote não for totalmente consumido programacao = concluida) . Temos Qualidade para o lote que não passou na qualidade e decisão para o lote ser retrablhado  que quando chega uma programacao ele volta para desabastecido(ainda a implementar)**.
+> **Nota para o Recrutador/Desenvolvedor:**  O fluxo de status de um lote/progrmacao geralmente segue a ordem: **Desabetecido(criada) ➔ Reservado(programada) ➔ Abastecido(em execução) ➔ Consumido(se for totalmente consumido o lote . Programacao = concluida) , Desabastecido( se lote não for totalmente consumido programacao = concluida) . Temos Qualidade para o lote que não passou na qualidade e decisão para o lote ser retrablhado  que quando chega uma programacao ele volta para desabastecido(ainda a implementar)**.
 ---
 ### ⚙️ Equipamento (equipamento-controller)
 
