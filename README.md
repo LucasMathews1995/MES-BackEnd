@@ -3,10 +3,15 @@
 ## 📖 Sobre o Projeto
 Esta é uma API desenvolvida para o gerenciamento e controle de chão de fábrica. O sistema permite o acompanhamento do ciclo de vida das ordens de produção, desde o abastecimento de insumos até a aprovação final e controle de qualidade, garantindo a rastreabilidade e eficiência industrial.
 
-## 🚀 Tecnologias Utilizadas
+## 🚀 Tecnologias e Arquitetura
 * **Linguagem:** Java
 * **Framework:** Spring Boot
-* **Arquitetura:** Monolito Modular
+* **Arquitetura:** Monolítica Modular
+* **Padrões de Projeto:**
+    * **Clean Architecture:** Separação entre Domain, Use Cases e Infrastructure.
+    * **Use Case Pattern:** Encapsulamento da lógica de negócio.
+    * **Strategy Pattern:** Gestão flexível de transição de status.
+    * **Factory Pattern:** Criação dinâmica e desacoplada de lotes/ordens.
 * **Documentação:** Swagger (OpenAPI 3.1)
 
 ---
@@ -19,53 +24,55 @@ Abaixo estão as rotas principais documentadas no módulo de **Produção**:
 
 | Verbo HTTP | Endpoint                                | Descrição                                                           |
 | :--- |:----------------------------------------|:--------------------------------------------------------------------|
-| `GET` | `/programacao`                          | Lista todas as programações existentes.                             |
-| `GET` | `/programacao/{id}`                     | Busca os detalhes de uma programação específica pelo ID.            |
-| `GET` | `/programacao/{id}/equipamento_programa_all`                    | Busca os equipamentos que ainda não foram produzidos no equipamento |
-| `POST` | `/programacao/save`                     | Cria uma nova programação no sistema.                               |
-| `PUT` | `/programacao/{id}/{idTroca}/sequencia` | Atualiza a sequência fila da programação.                           |
-| `PATCH` | `/programacao/{id}/abastecer`           | Registra o abastecimento de insumos para a programação.             |
-| `PATCH` | `/programacao/{id}/produzir`            | Altera o status da programação indicando início da produção.        |
-| `PATCH` | `/programacao/{id}/qualidade`           | Envia a produção para análise de qualidade.                         |
-| `PATCH` | `/programacao/{id}/aprovar`             | Aprova a programação após o fluxo de produção/qualidade.            |
-| `DELETE`| `/programacao/{id}/deletar`             | Remove ou inativa uma programação do sistema.                       |
+| `GET` | `api/programacao`                          | Lista todas as programações existentes.                             | não implementada ainda
+| `GET` | `api/programacao/{id}`                     | Busca os detalhes de uma programação específica pelo ID.            |não implementada ainda
+| `GET` | `api/programacao/{id}/equipamento_programa_all`                    | Busca os equipamentos que ainda não foram produzidos no equipamento |não implementada ainda
+| `POST` | `api/programacao/save`                     | Cria uma nova programação no sistema.                               |
+| `PUT` | `api/programacao/{id}/{idTroca}/sequencia` | Atualiza a sequência fila da programação.                           |não implementada ainda
+| `PATCH` | `api/programacao/{id}/programar`           | Registra a programação de insumos para a programação.             |
+| `PATCH` | `/programacao/{id}/executar`            | Altera o status da programação indicando início da produção.        |
+| `PATCH` | `/programacao/{id}/concluir`           | Altera o status da programação para concluída                      |
+| `PATCH` | `/programacao/{id}/cancelar`             | Cancela a programacao            |
+| `DELETE`| `/programacao/{id}/colocar-qualidade`             | Coloca a programação em qualidade e o lote por conseguinte                   |
 
-> **Nota para o Recrutador/Desenvolvedor:**  O fluxo de status de uma programação geralmente segue a ordem: **Criar ➔ Abastecer ➔ Produzir ➔ Qualidade ➔ Aprovar**.
+> **Nota para o Recrutador/Desenvolvedor:**  O fluxo de status de uma programação geralmente segue a ordem: **Criada ➔ Programada ➔ Em Execução ➔ Concluida . Temos Qualidade para programação que não passou na qualidade**.
 
 ### 📋 Ordem de Produção (ordem-producao-controller)
-
+O status do lote é gerenciado automaticamente através das operações realizadas no módulo de Lote. Por este motivo, não existem endpoints de atualização direta (PUT/PATCH) para o status na entidade Lote, mantendo a consistência dos dados conforme definido na modelagem.
 | Verbo HTTP | Endpoint | Descrição |
 | :--- | :--- | :--- |
 | `GET` | `/ordem_producao` | Lista todas as ordens de produção ativas. |
 | `GET` | `/ordem_producao/{id}` | Busca os detalhes de uma ordem de produção específica. |
 | `GET` | `/ordem_producao/{id}/lotes` | Lista os lotes associados a uma ordem de produção. |
-| `POST` | `/ordem_producao/save` | Cria uma nova ordem de produção. |
-| `PATCH` | `/ordem_producao/{idLote}/{idProd}` | Atualiza dados específicos de um lote dentro da ordem. |
-| `DELETE`| `/ordem_producao/{idLote}/{idProd}` | Remove a associação de um lote específico da ordem. |
-| `DELETE`| `/ordem_producao/{idProd}` | Exclui uma ordem de produção do sistema. |
+| `POST` | `api/ordem_producao/normal` | Cria uma nova ordem de produção. |
+| `POST` | `api/ordem_producao/retrabalho` | Cria uma nova ordem de produção para lotes de retrabalho(qualidade). |
+| `PATCH` | `api/ordem_producao/vincular/{idOP}/{idLote}` | Vincula um lote dentro da ordem. |
+| `PATCH`| `api/ordem_producao/{id}/equipamento/{equipamentoId}` | Vincula o equipamento a OP. |
+| `DELETE`| `/ordem_producao/{idProd}` | Exclui uma ordem de produção do sistema. | não implementada ainda
 > **Nota para o Recrutador/Desenvolvedor:**  O fluxo de status de uma programação geralmente segue a ordem: **Iniciada ➔ Processando ➔ Finalizada**.
 >
 ### 🏷️ Lote (lote-controller)
 
+O status do lote é gerenciado automaticamente através das operações realizadas no módulo de Programação. Por este motivo, não existem endpoints de atualização direta (PUT/PATCH) para o status na entidade Lote, mantendo a consistência dos dados conforme definido na modelagem.
+
 | Verbo HTTP | Endpoint | Descrição                                                                           |
 | :--- | :--- |:------------------------------------------------------------------------------------|
-| `GET` | `/lote` | Lista todos os lotes cadastrados no sistema.                                        |
-| `GET` | `/lote/{id}` | Busca os detalhes de um lote específico pelo ID.                                    |
-| `GET` | `/lote/sem-op` | Lista os lotes que ainda não estão vinculados a uma Ordem de Produção (sem OP).     |
-| `POST` | `/lote/save` | Cria um novo lote no sistema.                                                       |
-| `PATCH` | `/lote/{id}/desabastecer` | Atualiza o status de um lote específico para desabastecido e retira da programação. |
-| `DELETE` | `/lote/{id}` | Remove um lote do sistema.                                                          |
-
+| `GET` | `api/lote` | Lista todos os lotes cadastrados no sistema.                                        |não implementada ainda
+| `GET` | `api/lote/{id}` | Busca os detalhes de um lote específico pelo ID.                                    |não implementada ainda
+| `GET` | `api/lote/sem-op` | Lista os lotes que ainda não estão vinculados a uma Ordem de Produção (sem OP).     |não implementada ainda
+| `POST` | `api/lote/save` | Cria um novo lote no sistema.                                                       |
+| `DELETE` | `/lote/{id}` | Remove um lote do sistema.                                                          |não implementada ainda
+**Nota para o Recrutador/Desenvolvedor:**  O fluxo de status de um lote/progrmacao geralmente segue a ordem: **Desabetecido(criada) ➔ Reservado(programada) ➔ Abastecido(em execução) ➔ Consumido(se for totalmente consumido o lote . Programacao = concluida) , Desabastecido( se lote não for totalmente consumido programacao = concluida) . Temos Qualidade para o lote que não passou na qualidade e decisão para o lote ser retrablhado  que quando chega uma programacao ele volta para desabastecido(ainda a implementar)**.
 ---
 ### ⚙️ Equipamento (equipamento-controller)
 
 | Verbo HTTP | Endpoint | Descrição |
 |:-----------| :--- | :--- |
-| `GET`      | `/equipamento` | Lista todos os equipamentos cadastrados no sistema. |
-| `GET`      | `/equipamento/{id}` | Busca os detalhes de um equipamento específico pelo ID. |
-| `POST`     | `/equipamento/salvar` | Cadastra um novo equipamento no sistema. |
-| `DELETE`   | `/equipamento/{id}/remover` | Remove permanentemente um equipamento do sistema. |
-| `PATCH`    | `/equipamento/{id}/desativar` | Altera o status do equipamento para inativo (exclusão lógica). |
+| `GET`      | `api/equipamento` | Lista todos os equipamentos cadastrados no sistema. |
+| `GET`      | `api/equipamento/{id}` | Busca os detalhes de um equipamento específico pelo ID. |
+| `POST`     | `api/equipamento/salvar` | Cadastra um novo equipamento no sistema. |
+| `DELETE`   | `api/equipamento/{id}/remover` | Remove permanentemente um equipamento do sistema. |
+| `PATCH`    | `api/equipamento/{id}/desativar` | Altera o status do equipamento para inativo (exclusão lógica). |
 ## 🛠️ Como executar o projeto localmente
 
 > ⚠️ **ATENÇÃO AVALIADOR / RECRUTADOR: É OBRIGATÓRIO SUBIR O DOCKER PRIMEIRO!** ⚠️
