@@ -77,4 +77,4 @@ Abaixo estão as rotas principais documentadas no módulo de **Produção**:
 
 **UML do Projeto**
 
-![Diagrama de Arquitetura](src/main/docs/diagramas/UMLMES.svg)
+![Diagrama de Arquitetura](src/main/docs/diagramas/UMLMES.drawio.svg)
