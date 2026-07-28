@@ -7,7 +7,7 @@ public class EstrategiaLoteRetirarQualidade implements EstrategiaLote {
 
     @Override
     public StatusLote getStatusAlvo() {
-        return StatusLote.DECISAO;
+        return StatusLote.LIBERADO;
     }
 
     @Override

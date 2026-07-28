@@ -1,5 +1,7 @@
 package com.example.mes.producao.equipamento.repositories;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -13,5 +15,11 @@ public interface EquipamentoRepository extends JpaRepository<Equipamento, Long> 
 
     @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM Equipamento e WHERE LOWER(REPLACE(e.nome, ' ', '')) = LOWER(REPLACE(:nomeBusca, ' ', ''))")
     boolean checarSeNomeAchatadoExiste(@Param("nomeBusca") String nomeBusca);
+
+
+    List<Long> findAllByIdIn(List<Long> ids);
+
+    @Query("SELECT e.nomeAchatado FROM Equipamento e WHERE e.nomeAchatado IN :nomes")
+    List<String> findNomesExistentes(@Param("nomes") List<String> nomes);
 
 }

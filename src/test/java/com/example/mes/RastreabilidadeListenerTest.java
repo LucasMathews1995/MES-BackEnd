@@ -58,7 +58,7 @@ public class RastreabilidadeListenerTest {
         equipamentoMock.setCapacidade(1000L);
         
             OrdemProducao ordemProducaoMock = new OrdemProducao();
-        ordemProducaoMock.setEquipamento(1L);
+        ordemProducaoMock.trocarEquipamento(equipamentoMock);
         ordemProducaoMock.setNumeroOP("OP-123");
         ordemProducaoMock.setStatus(StatusOP.INICIADA);
         ordemProducaoMock.setDataCriacao(LocalDateTime.now());

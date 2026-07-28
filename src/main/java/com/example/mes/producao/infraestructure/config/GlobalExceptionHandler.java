@@ -4,12 +4,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import com.example.mes.producao.equipamento.exceptions.EquipamentoNotValidException;
 import com.example.mes.producao.equipamento.exceptions.NotFoundEquipamentoException;
+import com.example.mes.producao.lote.domain.exceptions.EstrategiaNotFoundException;
 import com.example.mes.producao.lote.domain.exceptions.LoteAbastecidoException;
+import com.example.mes.producao.lote.domain.exceptions.LoteWithoutOrdemException;
 import com.example.mes.producao.lote.domain.exceptions.NotFoundLoteException;
-import com.example.mes.producao.ordemproducao.exceptions.OPNotFoundException;
+import com.example.mes.producao.ordemproducao.exceptions.OrdemProducaoNotFoundException;
+import com.example.mes.producao.ordemproducao.exceptions.OrdemProducaoNotValidException;
 import com.example.mes.producao.programacao.domain.exceptions.NotFoundProgramacaoException;
 import com.example.mes.producao.programacao.domain.exceptions.ProgramacaoNotValidException;
 
@@ -44,8 +46,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleLoteAbastecidoException(LoteAbastecidoException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
-    @ExceptionHandler(OPNotFoundException.class)
-    public ResponseEntity<String> hanfleOPNotFoundException(OPNotFoundException ex){
+    @ExceptionHandler(OrdemProducaoNotFoundException.class)
+    public ResponseEntity<String> handleOrdemProducaoNotFoundException(OrdemProducaoNotFoundException ex){
         return new  ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(OrdemProducaoNotValidException.class)
+    public ResponseEntity<String> handleOrdemProducaoNotValidException(OrdemProducaoNotValidException ex){
+         return new  ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(EstrategiaNotFoundException.class)
+    public ResponseEntity<String> handleEstrategiaNotFoundException(EstrategiaNotFoundException ex){
+         return new  ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(LoteWithoutOrdemException.class)
+    public ResponseEntity<String> handleEstrategiaNotFoundException(LoteWithoutOrdemException ex){
+         return new  ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    
 }

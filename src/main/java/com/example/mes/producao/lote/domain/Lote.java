@@ -3,7 +3,7 @@ package com.example.mes.producao.lote.domain;
 import com.example.mes.producao.lote.domain.exceptions.LoteAbastecidoException;
 import com.example.mes.producao.lote.domain.exceptions.NotFoundLoteException;
 import com.example.mes.producao.ordemproducao.domain.OrdemProducao;
-import com.example.mes.producao.ordemproducao.exceptions.OPNotValidException;
+import com.example.mes.producao.ordemproducao.exceptions.OrdemProducaoNotValidException;
 import com.example.mes.producao.programacao.domain.Programacao;
 import com.example.mes.producao.programacao.domain.StatusProgramacao;
 import com.example.mes.producao.rastreabilidade.domain.Rastreabilidade;
@@ -67,7 +67,7 @@ public class Lote {
             throw new LoteAbastecidoException("O lote já está abastecido ou consumido.");
         }
         if (this.ordemProducao == null) {
-            throw new OPNotValidException("O lote deve estar associado a uma ordem de  produção para ser abastecido.");
+            throw new OrdemProducaoNotValidException("O lote deve estar associado a uma ordem de  produção para ser abastecido.");
         }
 
         this.status = StatusLote.RESERVADO;
@@ -110,10 +110,7 @@ public class Lote {
         if (this.status != StatusLote.RESERVADO) {
             throw new LoteAbastecidoException("O lote " + this.nome + " não está reservado.");
         }
-        if (this.ordemProducao == null) {
-            throw new OPNotValidException("O lote deve estar associado a uma ordem de  produção para ser abastecido.");
-
-        }
+      
 
         this.status = StatusLote.ABASTECIDO;
 

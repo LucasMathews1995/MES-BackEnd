@@ -8,7 +8,8 @@ import com.example.mes.producao.equipamento.exceptions.EquipamentoNotValidExcept
 import com.example.mes.producao.equipamento.model.Equipamento;
 import com.example.mes.producao.lote.domain.Lote;
 import com.example.mes.producao.ordemproducao.domain.OrdemProducao;
-import com.example.mes.producao.ordemproducao.exceptions.OPNotValidException;
+import com.example.mes.producao.ordemproducao.domain.StatusOP;
+import com.example.mes.producao.ordemproducao.exceptions.OrdemProducaoNotValidException;
 import com.example.mes.producao.programacao.domain.exceptions.ProgramacaoNotValidException;
 
 @Entity
@@ -68,14 +69,18 @@ public class Programacao {
 
     public static Programacao criarPrograma(OrdemProducao producao, Equipamento equipamento, Lote loteConsumido,
             Lote loteProduzido, Long quantidadeConsumida) {
+
         Programacao programacao = null;
 
         if (!equipamento.isAtivo()) {
             throw new EquipamentoNotValidException("O equipamento não está ativo");
         }
         if (!producao.getEquipamentoId().equals(equipamento.getId())) {
-            throw new OPNotValidException(
-                    "A ordem de produção está destinada a outro equipamento :" + producao.getEquipamentoId());
+            throw new OrdemProducaoNotValidException(
+                    "A ordem de produção está destinada a outro equipamento :" + producao.getEquipamentoId() );
+        }
+        if(!producao.getStatus().equals(StatusOP.PROCESSANDO)){
+            throw new OrdemProducaoNotValidException("A Ordem de Producao não foi processada");
         }
 
         programacao = new Programacao(loteConsumido, loteProduzido, equipamento, StatusProgramacao.CRIADA,

@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.mes.producao.programacao.application.PorgramacaoUseCase;
+
+import com.example.mes.producao.programacao.application.CriacaodeProgramacaoUseCase;
+import com.example.mes.producao.programacao.application.AlterarProgramacao;
 import com.example.mes.producao.programacao.domain.StatusProgramacao;
 
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -18,16 +20,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping("api/programacao")
 public class ProgramacaoController {
 
-    private final  PorgramacaoUseCase programarUseCase;
+    private final  AlterarProgramacao programarUseCase;
+    private final CriacaodeProgramacaoUseCase criacaodeProgramacaoUseCase;
 
 
-
-    public ProgramacaoController(PorgramacaoUseCase programarUseCase) {
+    public ProgramacaoController(AlterarProgramacao programarUseCase,CriacaodeProgramacaoUseCase criacaodeProgramacaoUseCase) {
         this.programarUseCase = programarUseCase;
+        this.criacaodeProgramacaoUseCase = criacaodeProgramacaoUseCase;
     }
     @PostMapping("/save")
     public ResponseEntity<Void> criarProgramacao(@RequestBody ProgramacaoInputDTO input) {
-        programarUseCase.criarProgramacao(input);
+        criacaodeProgramacaoUseCase.criarProgramacao(input);
      return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     @PatchMapping("/{id}/programar")

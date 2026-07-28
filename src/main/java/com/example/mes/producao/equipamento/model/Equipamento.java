@@ -17,6 +17,7 @@ import java.util.Set;
 
 import com.example.mes.producao.equipamento.exceptions.EquipamentoNotValidException;
 import com.example.mes.producao.programacao.domain.Programacao;
+import com.example.mes.producao.programacao.domain.StatusProgramacao;
 import com.example.mes.producao.rastreabilidade.domain.Rastreabilidade;
 
 @Entity
@@ -123,6 +124,21 @@ public class Equipamento {
     public void acrescerCapacidade(Long quantidadeConsumida) {
        
         this.capacidade = this.capacidade + quantidadeConsumida;
+    }
+
+
+    public void alterarCapacidade(Long capacidade){
+       boolean existe =  programacao.stream().anyMatch(it-> it.getStatus().equals(StatusProgramacao.PROGRAMADA) &&   it.getStatus().equals(StatusProgramacao.EM_EXECUCAO));
+        if(existe){
+            throw new EquipamentoNotValidException("Não pode alterar  a capacidade pois ainda tem programações dentro do equipamento: " + this.nome);
+        }
+
+        if(capacidade == null){
+           return;
+        }
+
+        this.capacidade=  capacidade;
+
     }
 
 

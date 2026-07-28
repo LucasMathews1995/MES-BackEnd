@@ -1,7 +1,7 @@
 package com.example.mes.producao.lote.domain;
 
 public enum StatusLote {
-  QUALIDADE , DESABASTECIDO,RESERVADO,ABASTECIDO,CONSUMIDO,PRODUZINDO,DECISAO;
+  QUALIDADE , DESABASTECIDO,RESERVADO,ABASTECIDO,CONSUMIDO,PRODUZINDO,LIBERADO, FINALIZADO;
 
     public boolean podeMudarPara(StatusLote novoStatus) {
         return switch (this) {
@@ -11,7 +11,8 @@ public enum StatusLote {
             case ABASTECIDO    -> novoStatus == CONSUMIDO ||    novoStatus == DESABASTECIDO || novoStatus == QUALIDADE;
             case PRODUZINDO -> novoStatus == CONSUMIDO || novoStatus == DESABASTECIDO || novoStatus == QUALIDADE || novoStatus == ABASTECIDO;
             case CONSUMIDO -> false; 
-            case DECISAO -> false;
+            case LIBERADO -> false;
+            case FINALIZADO -> false;
         };
     }
 }

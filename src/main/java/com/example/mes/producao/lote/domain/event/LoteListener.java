@@ -51,7 +51,7 @@ public class LoteListener {
             case CONCLUIDA -> estrategia.obterEstrategia(StatusLote.CONSUMIDO);
             case CANCELADA -> estrategia.obterEstrategia(StatusLote.DESABASTECIDO);
             case QUALIDADE -> estrategia.obterEstrategia(StatusLote.QUALIDADE);
-            case CRIADA -> estrategia.obterEstrategia(StatusLote.DECISAO);
+            case CRIADA -> estrategia.obterEstrategia(StatusLote.LIBERADO);
             default -> throw new IllegalArgumentException("Status de Programação não tratado: " + statusProgramacao);
         };
 

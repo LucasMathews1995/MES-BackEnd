@@ -2,5 +2,5 @@ package com.example.mes.producao.ordemproducao.domain;
 
 public enum StatusOP {
 
-INICIADA, PROCESSANDO, FINALIZADA,RETRABALHO,PAUSADA
+INICIADA, PROCESSANDO, FINALIZADA,RETRABALHO,PAUSADA,CANCELADA
 }
