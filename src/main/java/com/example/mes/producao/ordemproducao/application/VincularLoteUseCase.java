@@ -35,6 +35,7 @@ public class VincularLoteUseCase {
         Lote lote = loteRepository.findById(idLote).orElseThrow(() -> new NotFoundLoteException("Lote não encontrado"));
 
         op.adicionarLote(lote);
+        op.processar();
 
         repository.save(op);
         loteRepository.save(lote);

@@ -28,7 +28,7 @@ public class ExecutarOPUseCase {
         .orElseThrow(()-> new OrdemProducaoNotFoundException("Ordem de Producao não encontrada"));
 
 
-        producao.processarProducao();
+        producao.processar();
      
 
         

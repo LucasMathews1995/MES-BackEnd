@@ -22,4 +22,6 @@ public interface LoteRepository  extends JpaRepository<Lote, Long> {
     @Query(value = "SELECT * FROM tb_lote WHERE ordem_producao_id IS NULL ORDER BY id LIMIT 30",nativeQuery = true)
     Optional<List<Lote>> buscarSemOrdemProducao ();
     
+
+    
 }

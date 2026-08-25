@@ -11,8 +11,11 @@ import com.example.mes.producao.equipamento.exceptions.EquipamentoNotValidExcept
 import com.example.mes.producao.equipamento.exceptions.NotFoundEquipamentoException;
 import com.example.mes.producao.equipamento.model.Equipamento;
 import com.example.mes.producao.equipamento.repositories.EquipamentoRepository;
-import com.example.mes.producao.ordemproducao.dto.OrdemProducaoInputDTO;
-import com.example.mes.producao.rastreabilidade.domain.event.RastreabilidadeEquipamentoEvent;
+import com.example.mes.producao.programacao.domain.StatusProgramacao;
+import com.example.mes.producao.programacao.domain.exceptions.ProgramacaoNotValidException;
+import com.example.mes.rastreabilidade.domain.event.EquipamentoAtivacaoEvent;
+import com.example.mes.rastreabilidade.domain.event.EquipamentoAtualizadoEvent;
+import com.example.mes.rastreabilidade.domain.event.RastreabilidadeEquipamentoEvent;
 
 import jakarta.transaction.Transactional;
 
@@ -87,8 +90,9 @@ public class EquipamentoService {
         Equipamento equipamentoExistente = equipamentoRepository.findById(id)
                 .orElseThrow(() -> new EquipamentoNotValidException("Equipamento com id '" + id + "' não encontrado."));
 
-        if (equipamentoExistente.getNome().equals(equipamento.nome())
-                && equipamentoRepository.checarSeNomeAchatadoExiste(equipamento.getNomeAchatado())) {
+        boolean nomeFoiAlterado = !equipamentoExistente.getNome().equals(equipamento.nome());
+
+        if (nomeFoiAlterado && equipamentoRepository.checarSeNomeAchatadoExiste(equipamento.getNomeAchatado())) {
             throw new EquipamentoNotValidException("Equipamento com nome '" + equipamento.nome() + "' já existe.");
         }
 
@@ -105,16 +109,61 @@ public class EquipamentoService {
                 equipamentoExistente.getSigla(), equipamentoExistente.getDescricao());
     }
 
-
     @Transactional
-    public EquipamentoOutputDTO atualizarPeso(Long id , EquipamentoPesoUpdateDTO dto ){
-         Equipamento equipamentoExistente = equipamentoRepository.findById(id)
+    public EquipamentoOutputDTO atualizarPeso(Long id, EquipamentoPesoUpdateDTO dto) {
+        Equipamento equipamentoExistente = equipamentoRepository.findById(id)
                 .orElseThrow(() -> new EquipamentoNotValidException("Equipamento com id '" + id + "' não encontrado."));
 
+       Long capacidadeAntiga = equipamentoExistente.getCapacidade();
         equipamentoExistente.alterarCapacidade(dto.capacidade());
 
+        eventPublisher.publishEvent(new EquipamentoAtualizadoEvent(equipamentoExistente, capacidadeAntiga));
+
+        equipamentoRepository.save(equipamentoExistente);
         return EquipamentoOutputDTO.fromEntity(equipamentoExistente);
 
+    }
+
+    @Transactional
+    public void deletarEquipamento(Long id) {
+        Equipamento equipamentoExistente = equipamentoRepository.findById(id)
+                .orElseThrow(() -> new EquipamentoNotValidException("Equipamento com id '" + id + "' não encontrado."));
+        Boolean possuiProgramacaoAtiva = equipamentoExistente.getProgramacao().stream()
+                .anyMatch(it -> it.getStatus() == StatusProgramacao.EM_EXECUCAO
+                        || it.getStatus() == StatusProgramacao.PROGRAMADA);
+
+        if (possuiProgramacaoAtiva) {
+            throw new ProgramacaoNotValidException("Ainda há programações com status de PROGRAMADO ou EM_EXECUCAO");
+        }
+
+        if (equipamentoExistente.isAtivo()) {
+            equipamentoExistente.desativarEquipamento();
+            eventPublisher.publishEvent(new EquipamentoAtivacaoEvent(equipamentoExistente));
+        }
+
+        eventPublisher.publishEvent(new RastreabilidadeEquipamentoEvent(equipamentoExistente));
+        equipamentoRepository.delete(equipamentoExistente);
+    }
+
+    @Transactional
+    public void desativarEquipamento(Long id) {
+        Equipamento equipamentoExistente = equipamentoRepository.findById(id)
+                .orElseThrow(() -> new EquipamentoNotValidException("Equipamento com id '" + id + "' não encontrado."));
+
+        Boolean possuiProgramacaoAtiva = equipamentoExistente.getProgramacao().stream()
+                .anyMatch(it -> it.getStatus() == StatusProgramacao.EM_EXECUCAO
+                        || it.getStatus() == StatusProgramacao.PROGRAMADA);
+
+        if (possuiProgramacaoAtiva) {
+            throw new ProgramacaoNotValidException("Ainda há programações com status de PROGRAMADO ou EM_EXECUCAO");
+        }
+
+        if (!equipamentoExistente.isAtivo()) {
+            throw new EquipamentoNotValidException("Equipamento já está inativo ");
+        }
+
+        equipamentoExistente.desativarEquipamento();
+        eventPublisher.publishEvent(new EquipamentoAtivacaoEvent(equipamentoExistente));
     }
 
 }

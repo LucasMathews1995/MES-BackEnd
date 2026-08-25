@@ -25,9 +25,7 @@ public class AlterarAtributosUseCase {
     public LoteOutputDTO alterarQuantidade(Long id,LoteUpdateDTO dto){
       
         Lote lote = repository.findById(id).orElseThrow(()-> new NotFoundLoteException("Nenhum lote encontrado com esse id :" + id));
-        if(lote.getOrdemProducao() != null){
-            throw new LoteWithoutOrdemException("O lote já está vinculado a uma ordem de produção");
-        }
+        
 
         if(dto.quantidadeDisponivel()!= null){
         lote.setQuantidadeDisponivel(dto.quantidadeDisponivel());

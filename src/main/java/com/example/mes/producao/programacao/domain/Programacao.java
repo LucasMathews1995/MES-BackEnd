@@ -25,10 +25,14 @@ public class Programacao {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ordem_producao_id")
+    private OrdemProducao ordemProducao;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lote_consumido_id")
     private Lote loteConsumido;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE }, orphanRemoval = true)
     @JoinColumn(name = "lote_produzido_id")
     private Lote loteProduzido;
 
@@ -51,9 +55,10 @@ public class Programacao {
     @Column(precision = 6, nullable = false)
     private Long quantidadeConsumida;
 
-    private Programacao(Lote loteConsumido, Lote loteProduzido, Equipamento equipamento,
+    private Programacao(OrdemProducao ordemProducao, Lote loteConsumido, Lote loteProduzido, Equipamento equipamento,
             StatusProgramacao statusProgramacao,
             Long quantidadeConsumida) {
+        this.ordemProducao = ordemProducao;
         this.equipamento = equipamento;
         this.loteConsumido = loteConsumido;
         this.loteProduzido = loteProduzido;
@@ -67,24 +72,29 @@ public class Programacao {
 
     }
 
-    public static Programacao criarPrograma(OrdemProducao producao, Equipamento equipamento, Lote loteConsumido,
-            Lote loteProduzido, Long quantidadeConsumida) {
+    public static Programacao criarPrograma(OrdemProducao ordemProducao, Equipamento equipamentoNovo,
+            Lote loteConsumido,
+            Lote loteProduzido  ) {
 
         Programacao programacao = null;
 
-        if (!equipamento.isAtivo()) {
+        if (!equipamentoNovo.isAtivo()) {
             throw new EquipamentoNotValidException("O equipamento não está ativo");
         }
-        if (!producao.getEquipamentoId().equals(equipamento.getId())) {
+        if (equipamentoNovo != ordemProducao.getEquipamento()) {
             throw new OrdemProducaoNotValidException(
-                    "A ordem de produção está destinada a outro equipamento :" + producao.getEquipamentoId() );
+                    "A ordem de produção: " + ordemProducao.getId() + " e o equipamento: " + equipamentoNovo.getId()
+                            + " não são compatíveis");
         }
-        if(!producao.getStatus().equals(StatusOP.PROCESSANDO)){
+
+        if (!ordemProducao.getStatus().equals(StatusOP.PROCESSANDO)) {
             throw new OrdemProducaoNotValidException("A Ordem de Producao não foi processada");
         }
 
-        programacao = new Programacao(loteConsumido, loteProduzido, equipamento, StatusProgramacao.CRIADA,
-                quantidadeConsumida);
+        programacao = new Programacao(ordemProducao, loteConsumido, loteProduzido, equipamentoNovo,
+                StatusProgramacao.CRIADA,
+                loteProduzido.getQuantidadeDisponivel());
+
         return programacao;
 
     }
@@ -108,24 +118,42 @@ public class Programacao {
     public void cancelarProgramacao() {
         this.setStatus(StatusProgramacao.CANCELADA);
         this.setFila(null);
-        
-      
+
     }
 
     public void colocarEmQualidade() {
-        if(this.status != StatusProgramacao.PROGRAMADA && this.status != StatusProgramacao.EM_EXECUCAO) {
-            throw new ProgramacaoNotValidException("A programação deve estar em status PROGRAMADA ou EM_EXECUCAO para ser colocada em QUALIDADE.");
+        if (this.status != StatusProgramacao.PROGRAMADA && this.status != StatusProgramacao.CRIADA && this.status != StatusProgramacao.DESABASTECIDO) {
+            throw new ProgramacaoNotValidException(
+                    "A programação deve estar em status PROGRAMADA ou CRIADA para ser colocada em QUALIDADE.");
 
         }
         this.setStatus(StatusProgramacao.QUALIDADE);
+
         this.setFila(null);
+        this.equipamento.acrescerCapacidade(quantidadeConsumida);
+        this.setLoteProduzido(null);
        
+
+    }
+
+    public void desabastecerProgramacao() {
+        if (this.status != StatusProgramacao.EM_EXECUCAO ){
+                
+            throw new ProgramacaoNotValidException(
+                    "A programação deve estar em status EM_EXECUCAO para ser desabastecida.");
+        }
+
+        this.setStatus(StatusProgramacao.DESABASTECIDO);
+        this.setFila(null);
+        this.equipamento.acrescerCapacidade(quantidadeConsumida);
+
     }
 
     public void retirarDaQualidade() {
 
         this.setStatus(StatusProgramacao.CRIADA);
-       
+        
+
     }
 
 }

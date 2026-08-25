@@ -20,10 +20,10 @@ import com.example.mes.producao.ordemproducao.domain.OrdemProducao;
 import com.example.mes.producao.ordemproducao.domain.StatusOP;
 import com.example.mes.producao.programacao.domain.Programacao;
 import com.example.mes.producao.programacao.domain.StatusProgramacao;
-import com.example.mes.producao.rastreabilidade.domain.Rastreabilidade;
-import com.example.mes.producao.rastreabilidade.domain.event.RastreabilidadeEvent;
-import com.example.mes.producao.rastreabilidade.domain.event.RastreabilidadeListener;
-import com.example.mes.producao.rastreabilidade.infraestructure.persistence.RastreabilidadeRepository;
+import com.example.mes.rastreabilidade.domain.Rastreabilidade;
+import com.example.mes.rastreabilidade.domain.event.RastreabilidadeListener;
+import com.example.mes.rastreabilidade.domain.event.RastreabilidadeProgramacaoEvent;
+import com.example.mes.rastreabilidade.infraestructure.persistence.RastreabilidadeRepository;
 
 
 
@@ -90,7 +90,7 @@ public class RastreabilidadeListenerTest {
         programacaoMock.setStatus(StatusProgramacao.CRIADA);
 
 
-        RastreabilidadeEvent event = new RastreabilidadeEvent(programacaoMock);
+        RastreabilidadeProgramacaoEvent event = new RastreabilidadeProgramacaoEvent(programacaoMock);
 
         rastreabilidadeListener.rastrearProgramacao(event);
 

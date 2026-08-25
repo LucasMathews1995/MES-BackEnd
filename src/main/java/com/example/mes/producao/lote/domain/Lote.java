@@ -6,7 +6,8 @@ import com.example.mes.producao.ordemproducao.domain.OrdemProducao;
 import com.example.mes.producao.ordemproducao.exceptions.OrdemProducaoNotValidException;
 import com.example.mes.producao.programacao.domain.Programacao;
 import com.example.mes.producao.programacao.domain.StatusProgramacao;
-import com.example.mes.producao.rastreabilidade.domain.Rastreabilidade;
+import com.example.mes.rastreabilidade.domain.Rastreabilidade;
+
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -25,10 +26,10 @@ public class Lote {
 
     @Column(length = 100, nullable = false, unique = true)
     private String nome;
-
-    @ManyToOne
+   
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ordem_producao_id")
-    private OrdemProducao ordemProducao;
+    OrdemProducao ordemProducao;    
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lote_pai_id")
@@ -61,40 +62,27 @@ public class Lote {
     public Lote() {
     }
 
-    public void reservarLote(Long quantidadeConsumida) {
-        if (this.status == StatusLote.ABASTECIDO || this.status == StatusLote.CONSUMIDO
-                || this.status == StatusLote.RESERVADO || this.status == StatusLote.PRODUZINDO) {
+    public void reservarLote() {
+        if (this.status != StatusLote.DESABASTECIDO) {
             throw new LoteAbastecidoException("O lote já está abastecido ou consumido.");
         }
-        if (this.ordemProducao == null) {
-            throw new OrdemProducaoNotValidException("O lote deve estar associado a uma ordem de  produção para ser abastecido.");
-        }
+        
 
         this.status = StatusLote.RESERVADO;
 
     }
 
     public void desabastecerLote() {
-        if (this.status != StatusLote.ABASTECIDO && this.status != StatusLote.RESERVADO) {
+        if (this.status != StatusLote.ABASTECIDO && this.status != StatusLote.RESERVADO && this.status != StatusLote.PRODUZINDO) {
             throw new LoteAbastecidoException("O lote " + this.nome + " não está abastecido.");
         }
         if (programacao == null) {
             throw new NotFoundLoteException("Programação associada ao lote não encontrada.");
         }
-        if (programacao.getFirst().getStatus() == StatusProgramacao.CONCLUIDA) {
-            throw new LoteAbastecidoException(
-                    "A programação associada ao lote  está concluída, portanto o lote não pode ser desabastecido.");
-        }
-
+       
         this.status = StatusLote.DESABASTECIDO;
     }
 
-    public void liberarLote() {
-        if (this.status != StatusLote.PRODUZINDO) {
-            throw new LoteAbastecidoException("O lote " + this.nome + " não está em produção.");
-        }
-        this.status = StatusLote.DESABASTECIDO;
-    }
 
     public void rejeitarLoteConsumido(Long quantidade) {
         if (this.status == StatusLote.CONSUMIDO ) {
@@ -105,6 +93,7 @@ public class Lote {
         this.status = StatusLote.QUALIDADE;
 
     }
+
 
     public void abastecerLote() {
         if (this.status != StatusLote.RESERVADO) {
@@ -120,20 +109,21 @@ public class Lote {
         if (this.getQuantidadeDisponivel() != 0) {
 
             this.status = StatusLote.DESABASTECIDO;
+
         } else {
             this.status = StatusLote.CONSUMIDO;
-            this.ordemProducao.finalizarLoteNaOP(this);
+           
         }
     }
+
+    
 
     public void setLotePai(Lote lotePai) {
         this.lotePai = lotePai;
     }
 
     public Lote vincularOP(OrdemProducao ordemProducao) {
-
-        ordemProducao.adicionarLote(this);
-        this.setOrdemProducao(ordemProducao);
+   
         return this;
     }
 
@@ -189,15 +179,21 @@ public class Lote {
         this.quantidadeDisponivel -= quantidade;
     }
 
-    public Lote rejeitarLoteProduzido() {
-        
-        this.getProgramacao().clear();
+    public Lote retirarDaQualidadeConsumido(String nomeGerado){
+        if(!status.podeMudarPara(StatusLote.DESABASTECIDO)){
+            throw new LoteAbastecidoException("não pode ser abastecido , pois está: " + status);
+        }
 
-        return this;
+        setStatus(StatusLote.DESABASTECIDO);
 
-
-
+    return    gerarFilhoParaProgramacao(ordemProducao, quantidadeDisponivel, nomeGerado);
     }
+
+    
+
+
+
+ 
 
     public static Lote criarNovo(String nome, Long quantidade, LocalDateTime dataHoraInicio, String descricao) {
         return new Lote(nome, quantidade, dataHoraInicio, descricao);

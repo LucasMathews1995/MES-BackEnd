@@ -14,11 +14,10 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-
 import com.example.mes.producao.equipamento.exceptions.EquipamentoNotValidException;
 import com.example.mes.producao.programacao.domain.Programacao;
 import com.example.mes.producao.programacao.domain.StatusProgramacao;
-import com.example.mes.producao.rastreabilidade.domain.Rastreabilidade;
+import com.example.mes.rastreabilidade.domain.Rastreabilidade;
 
 @Entity
 @Getter
@@ -43,6 +42,7 @@ public class Equipamento {
     @OneToMany(mappedBy = "equipamento", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Rastreabilidade> rastreabilidade = new HashSet<>();
 
+
     @Column(nullable = false, name = "ativo")
     private boolean isAtivo;
 
@@ -58,8 +58,8 @@ public class Equipamento {
     @Column(precision = 10, nullable = false)
     private Long capacidade;
 
-    public Equipamento(String nome, String sigla, String descricao, LocalDateTime dataAtivacao,Long capacidade) {
-       
+    public Equipamento(String nome, String sigla, String descricao, LocalDateTime dataAtivacao, Long capacidade) {
+
         this.nome = nome;
         this.sigla = sigla;
         this.descricao = descricao;
@@ -120,28 +120,26 @@ public class Equipamento {
         }
         this.capacidade = this.capacidade - quantidadeConsumida;
     }
-    
+
     public void acrescerCapacidade(Long quantidadeConsumida) {
-       
+
         this.capacidade = this.capacidade + quantidadeConsumida;
     }
 
-
-    public void alterarCapacidade(Long capacidade){
-       boolean existe =  programacao.stream().anyMatch(it-> it.getStatus().equals(StatusProgramacao.PROGRAMADA) &&   it.getStatus().equals(StatusProgramacao.EM_EXECUCAO));
-        if(existe){
-            throw new EquipamentoNotValidException("Não pode alterar  a capacidade pois ainda tem programações dentro do equipamento: " + this.nome);
+    public void alterarCapacidade(Long capacidade) {
+        boolean existe = programacao.stream().anyMatch(it -> it.getStatus().equals(StatusProgramacao.PROGRAMADA)
+                && it.getStatus().equals(StatusProgramacao.EM_EXECUCAO));
+        if (existe) {
+            throw new EquipamentoNotValidException(
+                    "Não pode alterar  a capacidade pois ainda tem programações dentro do equipamento: " + this.nome);
         }
 
-        if(capacidade == null){
-           return;
+        if (capacidade == null) {
+            return;
         }
 
-        this.capacidade=  capacidade;
+        this.capacidade = capacidade;
 
     }
-
-
-    
 
 }

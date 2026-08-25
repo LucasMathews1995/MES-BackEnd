@@ -30,7 +30,7 @@ public class LoteProducaoController {
         this.alterarAtributosUseCase = alterarAtributosUseCase;
     }
 
-    @PostMapping("/save")
+    @PostMapping
     public ResponseEntity<LoteOutputDTO> criarLote(@RequestBody CriarLoteInputDTO input) {
         return ResponseEntity.ok(criarLoteUseCase.executar(input));
     }

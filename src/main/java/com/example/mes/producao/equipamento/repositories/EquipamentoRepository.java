@@ -19,7 +19,7 @@ public interface EquipamentoRepository extends JpaRepository<Equipamento, Long> 
 
     List<Long> findAllByIdIn(List<Long> ids);
 
-    @Query("SELECT e.nomeAchatado FROM Equipamento e WHERE e.nomeAchatado IN :nomes")
+    @Query("SELECT e.nome FROM Equipamento e WHERE e.nome IN :nomes")
     List<String> findNomesExistentes(@Param("nomes") List<String> nomes);
 
 }

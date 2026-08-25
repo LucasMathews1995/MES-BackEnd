@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.example.mes.producao.equipamento.model.Equipamento;
 import com.example.mes.producao.lote.domain.exceptions.EstrategiaNotFoundException;
-import com.example.mes.producao.lote.domain.strategy.EstrategiaCriacaoLote;
+import com.example.mes.producao.lote.domain.strategy.criacaoLoteStrategy.EstrategiaCriacaoLote;
 @Component
 public class EstrategiaCriacaoLoteFactory {
 

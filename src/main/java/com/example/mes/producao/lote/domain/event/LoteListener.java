@@ -2,16 +2,13 @@ package com.example.mes.producao.lote.domain.event;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 import com.example.mes.producao.lote.domain.StatusLote;
-import com.example.mes.producao.lote.domain.strategy.EstrategiaLote;
 import com.example.mes.producao.lote.domain.strategy.factory.EstrategiaLoteFactory;
-
+import com.example.mes.producao.lote.domain.strategy.loteStrategy.EstrategiaLote;
 import com.example.mes.producao.programacao.domain.StatusProgramacao;
-import com.example.mes.producao.rastreabilidade.domain.Rastreabilidade;
-import com.example.mes.producao.rastreabilidade.domain.StatusRastreabilidade;
-import com.example.mes.producao.rastreabilidade.infraestructure.persistence.RastreabilidadeRepository;
+import com.example.mes.rastreabilidade.domain.Rastreabilidade;
+import com.example.mes.rastreabilidade.domain.StatusRastreabilidade;
+import com.example.mes.rastreabilidade.infraestructure.persistence.RastreabilidadeRepository;
 
 @Component
 public class LoteListener {
@@ -52,6 +49,9 @@ public class LoteListener {
             case CANCELADA -> estrategia.obterEstrategia(StatusLote.DESABASTECIDO);
             case QUALIDADE -> estrategia.obterEstrategia(StatusLote.QUALIDADE);
             case CRIADA -> estrategia.obterEstrategia(StatusLote.LIBERADO);
+            case DESABASTECIDO -> estrategia.obterEstrategia(StatusLote.DESABASTECIDO);
+            
+            
             default -> throw new IllegalArgumentException("Status de Programação não tratado: " + statusProgramacao);
         };
 

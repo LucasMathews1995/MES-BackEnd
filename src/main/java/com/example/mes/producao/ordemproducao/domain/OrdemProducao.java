@@ -4,14 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
 import com.example.mes.producao.equipamento.model.Equipamento;
 import com.example.mes.producao.lote.domain.Lote;
 import com.example.mes.producao.lote.domain.StatusLote;
 import com.example.mes.producao.ordemproducao.exceptions.OrdemProducaoNotValidException;
+
 import com.example.mes.producao.ordemproducao.exceptions.OrdemExceededException;
 
 @Entity
@@ -23,16 +22,22 @@ public class OrdemProducao {
     @Getter
     private Long id;
 
-    private Long ordemVendaId;
-
-    @Column(name = "equipamentoId", nullable = false)
+    @Column(name = "ordem_venda_id")
     @Getter
-    private Long equipamentoId;
+    private Long ordemVendaId;
 
     @Column(length = 100, nullable = false, unique = true, name = "numero_op")
     @Getter
     @Setter
     private String numeroOP;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "equipamento_id", nullable = false)
+    @Getter
+    private Equipamento equipamento;
+
+    @OneToMany(mappedBy = "ordemProducao", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Lote> lotes = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -49,10 +54,6 @@ public class OrdemProducao {
     @Setter
     private LocalDateTime dataEncerramento;
 
-    @OneToMany(mappedBy = "ordemProducao")
-    @Getter
-    private Set<Lote> lotes = new HashSet<>();
-
     @Column(name = "capacidade_ocupada", nullable = false)
     @Getter
     private Long capacidadeOcupada;
@@ -62,12 +63,13 @@ public class OrdemProducao {
     @Setter
     private long capacidadeMaxima;
 
-    private OrdemProducao(Long equipamentoId, String numeroOP, StatusOP status, LocalDateTime dataCriacao,
+    private OrdemProducao(Equipamento equipamento, String numeroOP, StatusOP status, LocalDateTime dataCriacao,
             Long capacidadeMaxima) {
+        this.equipamento = equipamento;
         this.numeroOP = numeroOP;
         this.status = status;
         this.dataCriacao = dataCriacao;
-        this.equipamentoId = equipamentoId;
+
         this.capacidadeMaxima = capacidadeMaxima;
         this.capacidadeOcupada = 0L;
 
@@ -76,35 +78,24 @@ public class OrdemProducao {
     public OrdemProducao() {
     }
 
-    public static OrdemProducao criarNormal(Long equipamentoId, String numeroOP, Long capacidadeMaxima) {
-        return new OrdemProducao(equipamentoId, numeroOP, StatusOP.INICIADA, LocalDateTime.now(), capacidadeMaxima);
+    public static OrdemProducao criarNormal(Equipamento equipamento, String numeroOP, Long capacidadeMaxima) {
+        return new OrdemProducao(equipamento, numeroOP, StatusOP.INICIADA, LocalDateTime.now(), capacidadeMaxima);
     }
 
-    public static OrdemProducao criarRetrabalho(Long equipamentoId, String numeroOP, Long capacidadeMaxima) {
-        return new OrdemProducao(equipamentoId, numeroOP, StatusOP.RETRABALHO, LocalDateTime.now(), capacidadeMaxima);
+    public static OrdemProducao criarRetrabalho(Equipamento equipamento, String numeroOP, Long capacidadeMaxima) {
+        return new OrdemProducao(equipamento, numeroOP, StatusOP.RETRABALHO, LocalDateTime.now(), capacidadeMaxima);
     }
 
     public void adicionarLote(Lote lote) {
 
-        if (lote.getOrdemProducao() != null) {
-            throw new OrdemProducaoNotValidException(
-                    "O lote " + lote.getNome() + " já não está vinculado a uma ordem de produção");
-
-        }
-        // colocar a capacidade maxima da OP = a capacidade maxima do equipamento na
-        // hora de vincular
         if (this.capacidadeOcupada + lote.getQuantidadeDisponivel() > this.capacidadeMaxima) {
             throw new OrdemProducaoNotValidException(
                     "A ordem de produção não possui capacidade suficiente para adicionar o lote " + lote.getNome());
 
         }
         this.capacidadeOcupada = getCapacidadeOcupada() + lote.getQuantidadeDisponivel();
-
-        lote.setOrdemProducao(this);
         this.lotes.add(lote);
-
-     
-
+        lote.setOrdemProducao(this);
     }
 
     public void finalizarLoteNaOP(Lote lote) {
@@ -113,36 +104,35 @@ public class OrdemProducao {
                     "Impossível remover lote que não está abastecido ou consumido da ordem de produção");
         }
 
-        this.lotes.remove(lote);
-        lote.setOrdemProducao(null);
-
-        if (this.lotes.isEmpty() && this.status == StatusOP.PROCESSANDO) {
+        if (this.status == StatusOP.PROCESSANDO) {
             this.status = StatusOP.FINALIZADA;
             this.dataEncerramento = LocalDateTime.now();
         }
 
     }
 
-    public void setCapacidadeMaxima(Long capacidade){
-        if(!status.equals(StatusOP.INICIADA) && !status.equals(StatusOP.RETRABALHO)){
+    public void setCapacidadeMaxima(Long capacidade) {
+        if (!status.equals(StatusOP.INICIADA) && !status.equals(StatusOP.RETRABALHO)) {
             throw new OrdemProducaoNotValidException("a ordem não permite pois a ordem já está em processamento");
-        
+
         }
         this.capacidadeMaxima = capacidade;
     }
 
+    public void processar() {
 
-    public void processarProducao(){
-        if(lotes.isEmpty()){
-            throw new OrdemProducaoNotValidException("Ordem de Producao sem lotes");
+        if (this.status.equals(StatusOP.INICIADA) || this.status.equals(StatusOP.RETRABALHO)) {
+            this.status = StatusOP.PROCESSANDO;
+        } else {
+            throw new OrdemProducaoNotValidException(
+                    "Não é possível iniciar o processamento de uma OP com status " + this.status);
         }
-      
-        setStatus(StatusOP.PROCESSANDO);
     }
 
     public void pausarOP(Equipamento equipamento) {
         if (equipamento.isAtivo()) {
-            throw new OrdemProducaoNotValidException("Impossível pausar a ordem de produção enquanto o equipamento estiver ativo");
+            throw new OrdemProducaoNotValidException(
+                    "Impossível pausar a ordem de produção enquanto o equipamento estiver ativo");
         }
 
         this.status = StatusOP.PAUSADA;
@@ -158,13 +148,6 @@ public class OrdemProducao {
                             + this.status);
         }
 
-        boolean possuiLotesAbastecidos = this.getLotes().stream()
-                .anyMatch(it -> it.getStatus() == StatusLote.ABASTECIDO);
-
-        if (possuiLotesAbastecidos) {
-            throw new OrdemProducaoNotValidException("Ainda há lotes abastecidos. Precisa desabastecê-los.");
-        }
-
     }
 
     public void setStatus(StatusOP novoStatus) {
@@ -178,11 +161,7 @@ public class OrdemProducao {
         }
 
         long quantidadeJaAlocada = 0L;
-        if (this.lotes != null) {
-            quantidadeJaAlocada = lotes.stream()
-                    .mapToLong(Lote::getQuantidadeDisponivel)
-                    .sum();
-        }
+
         if (quantidadeJaAlocada > equipamento.getCapacidade()) {
             throw new OrdemProducaoNotValidException(
                     String.format(
@@ -190,7 +169,7 @@ public class OrdemProducao {
                             quantidadeJaAlocada, equipamento.getCapacidade()));
 
         }
-        this.equipamentoId = equipamento.getId();
+
         this.capacidadeMaxima = equipamento.getCapacidade();
     }
 
@@ -198,24 +177,20 @@ public class OrdemProducao {
         this.capacidadeOcupada = capacidadeOcupada;
     }
 
-    public void adicionarListadeLotes(List<Lote> novosLotes){
+    public void adicionarListadeLotes(List<Lote> novosLotes) {
 
         if (novosLotes == null || novosLotes.isEmpty()) {
-        throw new IllegalArgumentException("A lista de lotes não pode ser vazia.");
-    }
+            throw new IllegalArgumentException("A lista de lotes não pode ser vazia.");
+        }
 
-   Long peso =  novosLotes.stream().mapToLong(Lote::getQuantidadeDisponivel).sum();
+        Long peso = novosLotes.stream().mapToLong(Lote::getQuantidadeDisponivel).sum();
 
-   Long quantidadeDisponivel  = capacidadeMaxima - capacidadeOcupada;
+        Long quantidadeDisponivel = capacidadeMaxima - capacidadeOcupada;
 
-   if(peso > quantidadeDisponivel){
-    throw new OrdemExceededException("Valor do peso dos lotes é maior que a capacidade maxima da OP");
-   }
+        if (peso > quantidadeDisponivel) {
+            throw new OrdemExceededException("Valor do peso dos lotes é maior que a capacidade maxima da OP");
+        }
 
-  novosLotes.forEach(lote -> {
-       lote.setOrdemProducao(this);
-        this.lotes.add(lote);
-  });
     }
 
 }

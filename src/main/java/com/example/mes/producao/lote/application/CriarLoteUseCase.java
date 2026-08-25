@@ -56,7 +56,7 @@ private String gerarNomeLoteUnico() {
                 throw new IllegalStateException("Limite máximo de prefixos (A-Z) atingido para a numeração: " + numeroFormatado);
             }
             
-           
+           tentativaNome = prefixo + numeroFormatado;
         }
 
         return tentativaNome +"0100";

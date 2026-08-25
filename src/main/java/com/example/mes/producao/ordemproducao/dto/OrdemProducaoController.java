@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.mes.producao.ordemproducao.application.MudancaEquipamentoUseCase;
-import com.example.mes.producao.ordemproducao.application.AlterarAtributosUseCase;
+import com.example.mes.producao.ordemproducao.application.AlterarAtributosOPUseCase;
 import com.example.mes.producao.ordemproducao.application.BuscarOrdemProducaoUseCase;
 import com.example.mes.producao.ordemproducao.application.GerarOrdemProducaoUseCase;
 import com.example.mes.producao.ordemproducao.application.VincularLoteUseCase;
@@ -31,12 +31,12 @@ public class OrdemProducaoController {
     private final GerarOrdemProducaoUseCase gerarOrdemProducaoUseCase;
     private final VincularLoteUseCase vincularLoteUseCase;
     private final MudancaEquipamentoUseCase mudancaEquipamentoUseCase;
-    private final AlterarAtributosUseCase atributosUseCase;
+    private final AlterarAtributosOPUseCase atributosUseCase;
     private final BuscarOrdemProducaoUseCase buscarOrdemProducaoUseCase;
 
     public OrdemProducaoController(GerarOrdemProducaoUseCase useCase, VincularLoteUseCase vincularLoteUseCase,
             MudancaEquipamentoUseCase mudancaEquipamentoUseCase,
-            AlterarAtributosUseCase atributosUseCase, BuscarOrdemProducaoUseCase buscarOrdemProducaoUseCase) {
+            AlterarAtributosOPUseCase atributosUseCase, BuscarOrdemProducaoUseCase buscarOrdemProducaoUseCase) {
         this.gerarOrdemProducaoUseCase = useCase;
         this.vincularLoteUseCase = vincularLoteUseCase;
         this.mudancaEquipamentoUseCase = mudancaEquipamentoUseCase;
@@ -57,7 +57,7 @@ public class OrdemProducaoController {
         return ResponseEntity.ok(resposta);
     }
 
-    @PostMapping("/normal")
+    @PostMapping
     public ResponseEntity<OrdemProducaoOuputDTO> salvarOP(@RequestBody @Valid OrdemProducaoInputDTO dto) {
         OrdemProducaoOuputDTO ouputDTO = gerarOrdemProducaoUseCase.salvarOrdemProducao(dto);
 
