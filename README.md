@@ -14,6 +14,18 @@ Esta é uma API desenvolvida para o gerenciamento e controle de chão de fábric
     * **Factory Pattern:** Criação dinâmica e desacoplada de lotes/ordens.
 * **Documentação:** Swagger (OpenAPI 3.1)
 
+
+## 📐 Arquitetura de Domínio (DDD)
+
+Para garantir a consistência transacional e o desacoplamento do chão de fábrica, o sistema adota os conceitos de **Domain-Driven Design (DDD)**. 
+
+O núcleo do domínio é representado pela **Programação** (*Aggregate Root*), que centraliza e protege as regras de negócio em conjunto com suas entidades filhas e associadas.
+
+### 🧩 Delimitação do Agregado (Aggregate Root: Programação)
+* **`Programação` (Raiz):** Controla o ciclo de vida global e o planejamento das execuções no chão de fábrica.
+* **`Lote`:** Gerencia os insumos e rastreabilidade previstos para a fabricação.
+* **`Ordem Produção`:** Vincula diretamente as ordens de fabricação fabris à programação ativa.
+* **`Equipamento`:** Mapeia as máquinas e recursos alocados para atender ao processo.
 ---
 
 ## ⚙️ Endpoints da Aplicação
