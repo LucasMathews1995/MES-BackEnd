@@ -26,6 +26,8 @@ O núcleo do domínio é representado pela **Programação** (*Aggregate Root*),
 * **`Lote`:** Gerencia os insumos e rastreabilidade previstos para a fabricação.
 * **`Ordem Produção`:** Vincula diretamente as ordens de fabricação fabris à programação ativa.
 * **`Equipamento`:** Mapeia as máquinas e recursos alocados para atender ao processo.
+
+![Diagrama de Arquitetura](src/main/docs/diagramas/Aggregate.svg)
 ---
 
 ## ⚙️ Endpoints da Aplicação
