@@ -41,6 +41,7 @@ Seguindo o padrão de projeto *Use Case*, a lógica de negócio da aplicação e
 *   **Qualidade do produto (`ColocarRetirarQualidadeUseCase`):** Coloca ou retira o lote de qualidade.
 *   **Trocar Sequência (`AlterarSequenciaUseCase`):** Altera Sequencia duas Programações.
 
+![Diagrama de Arquitetura](src/main/docs/diagramas/programacaousecase.svg)
 
 ### 📋 Módulo de Ordem de Produção
 *   **Alterar Atributos da OP (`AlterarAtributosOPUseCase`):** Caso tenha alguma alteração na capacidade de produção ou o equipamento poderá ser alterado por aqui.
