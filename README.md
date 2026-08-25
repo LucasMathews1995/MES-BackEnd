@@ -56,6 +56,27 @@ Seguindo o padrão de projeto *Use Case*, a lógica de negócio da aplicação e
 ![Diagrama de Arquitetura](src/main/docs/diagramas/lotesusecase.svg)
 
 ---
+## 🔄 Ciclo de Vida e Máquina de Estados (Programação)
+
+O ciclo de vida da entidade `Programação` é modelado como uma **Máquina de Estados Finita**, garantindo o encapsulamento das regras de negócio do chão de fábrica e impedindo transições ilegais ou inconsistências de dados.
+
+![Diagrama de Estados da Programação](src/main/docs/diagramas/mudancaestado.svg)
+
+### Estados da Entidade
+* **Criada:** Estado inicial gerado pelo PCP. Exige a definição obrigatória do equipamento, dos lotes vinculados e da quantidade prevista para consumo antes de ser liberada para a fila de produção.
+* **Produção Ativa (Superestado):**
+  * **Programada:** Inserida na fila de fabricação ativa. Permite ajuste de sequência (`AlterarSequenciaUseCase`).
+  * **Em Execução:** Vinculada e em processamento real na linha de produção.
+  * **Desabastecido:** Processo interrompido/desvinculado fisicamente, permitindo retorno à fila ou envio para inspeção.
+* **Em Qualidade:** Retida temporariamente pelo controle de qualidade para inspeção. Ao ser liberada, retorna para a mesa do PCP no estado `Criada` para nova avaliação de prioridade.
+* **Concluída:** Estado terminal de sucesso da produção.
+* **Cancelada:** Estado terminal para ordens abortadas a partir de `Criada`, `Programada` ou `Desabastecido`.
+
+### Regras e Invariantes de Transição
+* **Idempotência e Segurança:** A programação não pode retornar diretamente de `Em Execução` para `Programada` sem passar pelo estado intermediário `Desabastecido`.
+* **Retenção de Qualidade:** O envio para `Em Qualidade` só é permitido a partir dos estados desabastecidos (`Programada` ou `Desabastecido`).
+* **Intervenção do PCP:** O retorno de um lote inspecionado pela Qualidade transiciona a entidade para `Criada`, exigindo um novo comando de programação (`alterarStatus(PROGRAMADA)`) por parte do planejador.
+---
 
 ## ⚙️ Endpoints da Aplicação
 
