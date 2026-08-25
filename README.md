@@ -28,6 +28,32 @@ O núcleo do domínio é representado pela **Programação** (*Aggregate Root*),
 * **`Equipamento`:** Mapeia as máquinas e recursos alocados para atender ao processo.
 
 ![Diagrama de Arquitetura](src/main/docs/diagramas/Aggregate.svg)
+
+
+
+## 🎯 Casos de Use Principais (Use Cases)
+
+Seguindo o padrão de projeto *Use Case*, a lógica de negócio da aplicação está isolada em classes de serviço de aplicação focadas em uma única responsabilidade. Abaixo estão os principais fluxos implementados:
+
+### 🏭 Módulo de Programação
+*   **Criar Programação (`CriarProgramacaoUseCase`):** Valida e registra uma nova programação de fabricação no sistema.
+*   **Alterar Estado da Programação (`AlterarProgramacaoUseCase`):** Realiza a mudança de estado da programação (veja a Máquina de Estados abaixo para mais detalhes).
+*   **Qualidade do produto (`ColocarRetirarQualidadeUseCase`):** Coloca ou retira o lote de qualidade.
+*   **Trocar Sequência (`AlterarSequenciaUseCase`):** Altera Sequencia duas Programações.
+
+
+### 📋 Módulo de Ordem de Produção
+*   **Alterar Atributos da OP (`AlterarAtributosOPUseCase`):** Caso tenha alguma alteração na capacidade de produção ou o equipamento poderá ser alterado por aqui.
+*   **Vincular Lote à OP (`VincularLoteUseCase`):** Associa um lote de insumo ou produto à ordem de fabricação correspondente.
+*   **Executar a OP(`ExecutarOPUseCase`):** Muda  o Estado da OP para Processando , porém precisa ter Lotes na OP para ser bem sucedida.
+*   **Buscar Ordem(`BuscarOrdemProducaoUseCase`):** Busca as OP de forma geral seja ou seleciona por identificação.
+
+### 🏷️ Módulo de Lote
+*   **Alterar Atributos (`AlterarAtributosUseCase`):** Altera a descrição do lote (caso mude sua localização ou detalhes dele) e ajuste de quantidade para mais ou menos.
+*   **Buscar Lotes (`BuscarLotesUseCase`):** Busca os lotes por Identificação, lotes sem Ordem de Produção, buscar por Ordem de Produção.
+*   **Criar Lotes (`CriarLtoeUseCase`):** Cria o lote para colocá-lo em produção
+
+
 ---
 
 ## ⚙️ Endpoints da Aplicação
