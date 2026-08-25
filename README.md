@@ -38,7 +38,7 @@ Seguindo o padrão de projeto *Use Case*, a lógica de negócio da aplicação e
 ### 🏭 Módulo de Programação
 *   **Criar Programação (`CriarProgramacaoUseCase`):** Valida e registra uma nova programação de fabricação no sistema.
 *   **Alterar Estado da Programação (`AlterarProgramacaoUseCase`):** Realiza a mudança de estado da programação (veja a Máquina de Estados abaixo para mais detalhes).
-*   **Qualidade do produto (`ColocarRetirarQualidadeUseCase`):** Coloca ou retira o lote de qualidade.
+*   **Colocar/Retirar Qualidade (`ColocarRetirarQualidadeUseCase`):** Coloca ou retira o lote de qualidade.
 *   **Trocar Sequência (`AlterarSequenciaUseCase`):** Altera Sequencia duas Programações.
 
 ![Diagrama de Arquitetura](src/main/docs/diagramas/programacaousecase.svg)
