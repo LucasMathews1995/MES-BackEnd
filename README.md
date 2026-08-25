@@ -31,7 +31,7 @@ O núcleo do domínio é representado pela **Programação** (*Aggregate Root*),
 
 
 
-## 🎯 Casos de Use Principais (Use Cases)
+## 🎯 Casos de Uso Principais (Use Cases)
 
 Seguindo o padrão de projeto *Use Case*, a lógica de negócio da aplicação está isolada em classes de serviço de aplicação focadas em uma única responsabilidade. Abaixo estão os principais fluxos implementados:
 
@@ -47,12 +47,12 @@ Seguindo o padrão de projeto *Use Case*, a lógica de negócio da aplicação e
 *   **Alterar Atributos da OP (`AlterarAtributosOPUseCase`):** Caso tenha alguma alteração na capacidade de produção ou o equipamento poderá ser alterado por aqui.
 *   **Vincular Lote à OP (`VincularLoteUseCase`):** Associa um lote de insumo ou produto à ordem de fabricação correspondente.
 *   **Executar a OP(`ExecutarOPUseCase`):** Muda  o Estado da OP para Processando , porém precisa ter Lotes na OP para ser bem sucedida.
-*   **Buscar Ordem(`BuscarOrdemProducaoUseCase`):** Busca as OP de forma geral seja ou seleciona por identificação.
-
+*   **Buscar Ordem de Produção(`BuscarOrdemProducaoUseCase`):** Busca as OP de forma geral seja ou seleciona por identificação.
+![Diagrama de Arquitetura](src/main/docs/diagramas/diagramausecaseOP.svg)
 ### 🏷️ Módulo de Lote
 *   **Alterar Atributos (`AlterarAtributosUseCase`):** Altera a descrição do lote (caso mude sua localização ou detalhes dele) e ajuste de quantidade para mais ou menos.
 *   **Buscar Lotes (`BuscarLotesUseCase`):** Busca os lotes por Identificação, lotes sem Ordem de Produção, buscar por Ordem de Produção.
-*   **Criar Lotes (`CriarLtoeUseCase`):** Cria o lote para colocá-lo em produção
+*   **Criar Lotes (`CriarLoteUseCase`):** Cria o lote para colocá-lo em produção
 
 
 ---
