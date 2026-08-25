@@ -53,7 +53,7 @@ Seguindo o padrão de projeto *Use Case*, a lógica de negócio da aplicação e
 *   **Alterar Atributos (`AlterarAtributosUseCase`):** Altera a descrição do lote (caso mude sua localização ou detalhes dele) e ajuste de quantidade para mais ou menos.
 *   **Buscar Lotes (`BuscarLotesUseCase`):** Busca os lotes por Identificação, lotes sem Ordem de Produção, buscar por Ordem de Produção.
 *   **Criar Lotes (`CriarLoteUseCase`):** Cria o lote para colocá-lo em produção
-
+![Diagrama de Arquitetura](src/main/docs/diagramas/lotesusecase.svg)
 
 ---
 
